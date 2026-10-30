@@ -1,6 +1,6 @@
 import type { CategorySlug } from '@/config/catalog';
 import { NotConnectedError } from '@/lib/errors';
-import { requireSupabase, supabase, toError } from '@/lib/supabase';
+import { isMissingTable, requireSupabase, supabase, toError } from '@/lib/supabase';
 import type { WoodTone } from '@/types/media';
 import { splitParagraphs, toMediaImages } from '@/features/portfolio/api';
 import { DEMO_PRODUCTS } from './demo-data';
@@ -116,6 +116,7 @@ export async function listProducts(params: ListProductsParams = {}): Promise<Pag
   if (term) query = query.or(`name.ilike.%${term}%,summary.ilike.%${term}%`);
 
   const { data, error, count } = await query.returns<ProductRow[]>();
+  if (isMissingTable(error)) return listDemoProducts(params);
   if (error) throw toError(error, 'Could not load products.');
   const total = count ?? data.length;
   return {
@@ -135,6 +136,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle<ProductRow>();
+  if (isMissingTable(error)) return DEMO_PRODUCTS.find((p) => p.slug === slug) ?? null;
   if (error) throw toError(error, 'Could not load this product.');
   return data ? toProduct(data) : null;
 }

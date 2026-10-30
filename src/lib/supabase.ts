@@ -36,6 +36,14 @@ export function toError(error: { message: string } | null | undefined, fallback 
   return new Error(error?.message || fallback);
 }
 
+/**
+ * True when the database hasn't been set up yet (the table doesn't exist).
+ * Public pages then show the bundled demo content instead of an error.
+ */
+export function isMissingTable(error: { code?: string } | null | undefined): boolean {
+  return error?.code === 'PGRST205' || error?.code === '42P01';
+}
+
 /** Generates an idempotency key for one submission attempt. */
 export function newClientToken(): string {
   return crypto.randomUUID();

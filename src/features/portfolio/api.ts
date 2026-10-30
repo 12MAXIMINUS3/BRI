@@ -1,5 +1,5 @@
 import type { CategorySlug } from '@/config/catalog';
-import { catalogImageUrl, supabase, toError } from '@/lib/supabase';
+import { catalogImageUrl, isMissingTable, supabase, toError } from '@/lib/supabase';
 import type { MediaImage, WoodTone } from '@/types/media';
 import { DEMO_PROJECTS } from './demo-data';
 import type { PortfolioProject } from './types';
@@ -84,12 +84,13 @@ function toProject(row: ProjectRow): PortfolioProject {
 export async function listProjects({ category, featuredOnly, limit }: ListProjectsParams = {}): Promise<
   PortfolioProject[]
 > {
-  if (!supabase) {
+  const demo = () => {
     let result = DEMO_PROJECTS;
     if (category) result = result.filter((p) => p.category === category);
     if (featuredOnly) result = result.filter((p) => p.featured);
     return limit ? result.slice(0, limit) : result;
-  }
+  };
+  if (!supabase) return demo();
 
   let query = supabase
     .from('portfolio_projects')
@@ -102,6 +103,7 @@ export async function listProjects({ category, featuredOnly, limit }: ListProjec
   if (limit) query = query.limit(limit);
 
   const { data, error } = await query.returns<ProjectRow[]>();
+  if (isMissingTable(error)) return demo();
   if (error) throw toError(error, 'Could not load projects.');
   return data.map(toProject);
 }
@@ -115,6 +117,7 @@ export async function getProjectBySlug(slug: string): Promise<PortfolioProject |
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle<ProjectRow>();
+  if (isMissingTable(error)) return DEMO_PROJECTS.find((p) => p.slug === slug) ?? null;
   if (error) throw toError(error, 'Could not load this project.');
   return data ? toProject(data) : null;
 }
