@@ -1,11 +1,12 @@
-import { SITE_PHOTOS, setSitePhotoOverride, type SitePhotoKey } from '@/config/images';
-import { catalogImageUrl } from '@/lib/supabase';
+import { business } from '@/config/business';
+import { BRAND_LOGO_KEY, BRAND_VIDEO_KEY, SITE_PHOTOS, setSitePhotoOverride, type SitePhotoKey } from '@/config/images';
+import { catalogImageUrl, siteMediaUrl } from '@/lib/supabase';
 import { CATALOG_IMAGE_RULES } from './catalog';
 import { check, db } from './shared';
 
 /** A replacement saved in the dashboard. Slots without a row show the default photo. */
 export interface SitePhotoRow {
-  key: SitePhotoKey;
+  key: string;
   storage_path: string;
   alt: string;
   updated_at: string;
@@ -91,9 +92,71 @@ export async function saveSitePhotoDescription(key: SitePhotoKey, alt: string, c
   setSitePhotoOverride(key, { url: catalogImageUrl(storagePath)!, alt: description });
 }
 
-/** Goes back to the original photo and description. */
-export async function resetSitePhoto(key: SitePhotoKey, current: SitePhotoRow | undefined) {
-  check(await db().from('site_photos').delete().eq('key', key), 'Could not reset the photo.');
-  if (isUploaded(current?.storage_path)) await db().storage.from('catalog-images').remove([current.storage_path]);
+/** Goes back to the original photo and description (or the built-in logo / video). */
+export async function resetSitePhoto(key: string, current: SitePhotoRow | undefined) {
+  check(await db().from('site_photos').delete().eq('key', key), 'Could not reset.');
+  if (isUploaded(current?.storage_path)) await db().storage.from(bucketFor(key)).remove([current.storage_path]);
   setSitePhotoOverride(key, null);
+}
+
+// --- Logo and background video ------------------------------------------------------
+
+const bucketFor = (key: string) => (key.startsWith('brand/') ? 'site-media' : 'catalog-images');
+
+export const BRAND_RULES = {
+  [BRAND_LOGO_KEY]: {
+    mimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+    maxBytes: 5 * 1024 * 1024,
+    help: 'PNG (best, keeps a transparent background), JPG, or WebP, up to 5 MB.',
+  },
+  [BRAND_VIDEO_KEY]: {
+    mimeTypes: ['video/mp4', 'video/webm', 'video/quicktime'],
+    maxBytes: 50 * 1024 * 1024,
+    help: 'MP4 (best), WebM, or iPhone MOV, up to 50 MB. Short clips of 10–30 seconds work best; it plays silently on repeat.',
+  },
+} as const;
+
+export type BrandKey = keyof typeof BRAND_RULES;
+
+const MEDIA_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/quicktime': 'mov',
+};
+
+export function validateBrandFile(key: BrandKey, file: File): string | null {
+  const rules = BRAND_RULES[key];
+  if (!(rules.mimeTypes as readonly string[]).includes(file.type)) {
+    return `"${file.name}" can't be used here. ${rules.help}`;
+  }
+  if (file.size > rules.maxBytes) {
+    return `"${file.name}" is ${(file.size / 1024 / 1024).toFixed(0)} MB. The limit is ${rules.maxBytes / 1024 / 1024} MB, so please use a shorter or smaller file.`;
+  }
+  return null;
+}
+
+/** Uploads a new logo or background video and switches the website to it. */
+export async function replaceBrandMedia(key: BrandKey, file: File, previous: SitePhotoRow | undefined) {
+  const problem = validateBrandFile(key, file);
+  if (problem) throw new Error(problem);
+
+  const path = `brand/${key.split('/')[1]}-${crypto.randomUUID()}.${MEDIA_EXT[file.type] ?? 'bin'}`;
+  const upload = await db().storage.from('site-media').upload(path, file, {
+    contentType: file.type,
+    cacheControl: '31536000',
+    upsert: false,
+  });
+  if (upload.error) throw new Error(upload.error.message);
+
+  const alt = key === BRAND_LOGO_KEY ? `${business.name} logo` : 'Background video';
+  const saved = await db().from('site_photos').upsert({ key, storage_path: path, alt });
+  if (saved.error) {
+    await db().storage.from('site-media').remove([path]);
+    throw new Error(saved.error.message);
+  }
+  if (isUploaded(previous?.storage_path)) await db().storage.from('site-media').remove([previous.storage_path]);
+  setSitePhotoOverride(key, { url: siteMediaUrl(key, path)!, alt });
 }

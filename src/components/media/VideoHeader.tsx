@@ -1,8 +1,6 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { DEFAULT_HEADER_VIDEO, headerVideoUrl, siteMediaStore } from '@/config/images';
 import { cn } from '@/lib/cn';
-
-/** Background video shown behind page headers. Replace the file to change it. */
-export const HEADER_VIDEO_SRC = '/media/workshop.mp4';
 
 interface VideoHeaderProps {
   children: ReactNode;
@@ -19,6 +17,12 @@ interface VideoHeaderProps {
  */
 export function VideoHeader({ children, className, overlay = 'normal' }: VideoHeaderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  // The video can be replaced in Admin → Logo & Photos. If the uploaded file
+  // can't be played on this device, fall back to the original video.
+  useSyncExternalStore(siteMediaStore.subscribe, siteMediaStore.getVersion);
+  const preferred = headerVideoUrl();
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const src = failedSrc === preferred ? DEFAULT_HEADER_VIDEO : preferred;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -35,14 +39,18 @@ export function VideoHeader({ children, className, overlay = 'normal' }: VideoHe
     apply();
     query.addEventListener('change', apply);
     return () => query.removeEventListener('change', apply);
-  }, []);
+  }, [src]);
 
   return (
     <section className={cn('relative isolate overflow-hidden border-b border-gold-500/20 bg-ink-950', className)}>
       <video
         ref={videoRef}
         className="absolute inset-0 -z-20 size-full object-cover"
-        src={HEADER_VIDEO_SRC}
+        key={src}
+        src={src}
+        onError={() => {
+          if (src !== DEFAULT_HEADER_VIDEO) setFailedSrc(src);
+        }}
         muted
         loop
         playsInline

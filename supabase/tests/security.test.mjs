@@ -204,5 +204,21 @@ await as('authenticated', C);
 await db.query(`delete from public.site_photos where key = 'home/hero'`);
 ok(Number((await one(`select count(*) from public.site_photos`)).count) === 0, 'admin can reset a photo to its default');
 
+console.log('\nLogo and background video');
+await as('authenticated', C); // admin
+await db.query(`insert into storage.objects (bucket_id, name) values ('site-media', 'brand/logo-1.png'), ('site-media', 'brand/video-1.mp4')`);
+await db.query(`insert into public.site_photos (key, storage_path, alt) values ('brand/logo', 'brand/logo-1.png', 'BuiltRight Interiors'), ('brand/header-video', 'brand/video-1.mp4', 'Background video')`);
+ok(true, 'admin uploads a logo and a video');
+await as('authenticated', A); // customer
+await expectError(db.query(`insert into storage.objects (bucket_id, name) values ('site-media', 'brand/evil.mp4')`), /row-level security/, 'customers cannot upload site media');
+ok((await db.query(`delete from storage.objects where bucket_id = 'site-media' returning id`)).rows.length === 0, 'customers cannot delete the logo or video');
+await as('anon');
+ok(Number((await one(`select count(*) from storage.objects where bucket_id = 'site-media'`)).count) === 2, 'visitors can load the logo and video');
+await expectError(db.query(`insert into storage.objects (bucket_id, name) values ('site-media', 'brand/evil.png')`), /row-level security/, 'visitors cannot upload site media');
+await as('authenticated', C);
+await db.query(`delete from public.site_photos where key like 'brand/%'`);
+await db.query(`delete from storage.objects where bucket_id = 'site-media'`);
+ok(Number((await one(`select count(*) from storage.objects where bucket_id = 'site-media'`)).count) === 0, 'admin can remove the logo and video');
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

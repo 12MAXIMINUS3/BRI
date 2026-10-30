@@ -1,5 +1,7 @@
-import { useId } from 'react';
+import { useId, useSyncExternalStore } from 'react';
 import { Link } from 'react-router';
+import { business } from '@/config/business';
+import { customLogo, siteMediaStore } from '@/config/images';
 import { cn } from '@/lib/cn';
 
 /**
@@ -51,7 +53,21 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
+/** The logo uploaded in Admin → Logo & Photos, if any (re-renders when it changes). */
+export function useCustomLogo() {
+  useSyncExternalStore(siteMediaStore.subscribe, siteMediaStore.getVersion);
+  return customLogo();
+}
+
 export function Logo({ className }: { className?: string }) {
+  const custom = useCustomLogo();
+  if (custom) {
+    return (
+      <Link to="/" className={cn('inline-flex items-center', className)} aria-label={`${business.name}, home`}>
+        <img src={custom.url} alt="" className="h-11 w-auto max-w-[200px] object-contain sm:h-12 sm:max-w-[260px]" />
+      </Link>
+    );
+  }
   return (
     <Link to="/" className={cn('group inline-flex items-center gap-3', className)} aria-label="BuiltRight Interiors, home">
       <LogoMark className="size-11 shrink-0 drop-shadow-[0_2px_8px_rgba(201,162,74,0.25)] sm:size-12" />

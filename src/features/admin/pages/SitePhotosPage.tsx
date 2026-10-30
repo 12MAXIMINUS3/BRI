@@ -1,9 +1,18 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { EDITABLE_PHOTO_GROUPS, SITE_PHOTOS, type EditablePhoto } from '@/config/images';
+import {
+  BRAND_LOGO_KEY,
+  BRAND_VIDEO_KEY,
+  EDITABLE_PHOTO_GROUPS,
+  SITE_PHOTOS,
+  headerVideoUrl,
+  siteMediaStore,
+  type EditablePhoto,
+} from '@/config/images';
 import { errorMessage } from '@/lib/errors';
 import { catalogImageUrl } from '@/lib/supabase';
+import { Logo } from '@/components/layout/Logo';
 import { WoodImage } from '@/components/media/WoodImage';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
@@ -12,7 +21,16 @@ import { Dialog } from '@/components/ui/Dialog';
 import { TextAreaField } from '@/components/ui/form/Field';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { CATALOG_IMAGE_RULES } from '../api/catalog';
-import { listSitePhotos, replaceSitePhoto, resetSitePhoto, saveSitePhotoDescription, type SitePhotoRow } from '../api/sitePhotos';
+import {
+  BRAND_RULES,
+  listSitePhotos,
+  replaceBrandMedia,
+  replaceSitePhoto,
+  resetSitePhoto,
+  saveSitePhotoDescription,
+  type BrandKey,
+  type SitePhotoRow,
+} from '../api/sitePhotos';
 import { AdminPageHeader } from '../components/AdminUi';
 import { adminKeys } from '../keys';
 
@@ -26,8 +44,8 @@ export function SitePhotosPage() {
   return (
     <>
       <AdminPageHeader
-        title="Site Photos"
-        description="Every photo on your website's pages, grouped by page. Upload your own photo or edit what it says, and the website updates straight away."
+        title="Logo, Photos and Video"
+        description="Your logo, the background video, and every photo on your website's pages, grouped by page. Upload your own or edit what a photo says, and the website updates straight away."
       />
 
       <Alert className="mb-8" title="Photos of products and past projects are managed separately">
@@ -52,6 +70,12 @@ export function SitePhotosPage() {
             <span className="mr-2 text-mist-400">
               {replaced} of {total} replaced with your own photos ·
             </span>
+            <a
+              href="#logo-video"
+              className="rounded-[10px] border border-gold-500/25 px-3 py-1.5 text-ivory-300 hover:border-gold-500/60 hover:text-gold-300"
+            >
+              Logo and video
+            </a>
             {EDITABLE_PHOTO_GROUPS.map((group) => (
               <a
                 key={group.page}
@@ -64,6 +88,35 @@ export function SitePhotosPage() {
           </nav>
 
           <div className="grid gap-14">
+            <section id="logo-video" aria-labelledby="logo-video-h" className="scroll-mt-28">
+              <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3 border-b border-ink-700 pb-3">
+                <h2 id="logo-video-h" className="text-3xl">
+                  Logo and background video
+                </h2>
+                <a href="/" target="_blank" rel="noopener noreferrer" className="text-sm text-gold-300 hover:underline">
+                  Open the website ↗
+                </a>
+              </div>
+              <ul className="grid gap-6 md:grid-cols-2">
+                <li>
+                  <BrandCard
+                    mediaKey={BRAND_LOGO_KEY}
+                    name="Logo"
+                    where="Top left of every page, at the bottom of every page, and in this dashboard."
+                    row={photos.data.get(BRAND_LOGO_KEY)}
+                  />
+                </li>
+                <li>
+                  <BrandCard
+                    mediaKey={BRAND_VIDEO_KEY}
+                    name="Background video"
+                    where="Plays silently behind the top section of every page (Home, Categories, Our Work, Shop, About, Contact)."
+                    row={photos.data.get(BRAND_VIDEO_KEY)}
+                  />
+                </li>
+              </ul>
+            </section>
+
             {EDITABLE_PHOTO_GROUPS.map((group) => (
               <section key={group.page} id={slug(group.page)} aria-labelledby={`${slug(group.page)}-h`} className="scroll-mt-28">
                 <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3 border-b border-ink-700 pb-3">
@@ -213,6 +266,139 @@ function PhotoCard({ photo, row }: { photo: EditablePhoto; row: SitePhotoRow | u
         <p className="leading-relaxed text-ivory-200">
           <strong>{photo.name}</strong> will show the original sample photo and description again.
           {isOwnPhoto && ' The photo you uploaded will be deleted.'}
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="ghost" onClick={() => setConfirmReset(false)}>
+            Keep Mine
+          </Button>
+          <Button loading={reset.isPending} onClick={() => reset.mutate()}>
+            Use Original
+          </Button>
+        </div>
+      </Dialog>
+    </article>
+  );
+}
+
+function BrandCard({ mediaKey, name, where, row }: { mediaKey: BrandKey; name: string; where: string; row: SitePhotoRow | undefined }) {
+  const queryClient = useQueryClient();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  useSyncExternalStore(siteMediaStore.subscribe, siteMediaStore.getVersion);
+  const isVideo = mediaKey === BRAND_VIDEO_KEY;
+  const rules = BRAND_RULES[mediaKey];
+  const refresh = () => queryClient.invalidateQueries({ queryKey: adminKeys.sitePhotos() });
+
+  const upload = useMutation({
+    mutationFn: (file: File) => replaceBrandMedia(mediaKey, file, row),
+    onMutate: () => setNotice(null),
+    onSuccess: () => {
+      setNotice(`New ${isVideo ? 'video' : 'logo'} saved. It now shows on the website.`);
+      void refresh();
+    },
+  });
+  const reset = useMutation({
+    mutationFn: () => resetSitePhoto(mediaKey, row),
+    onMutate: () => setNotice(null),
+    onSuccess: () => {
+      setConfirmReset(false);
+      setNotice(`Back to the original ${isVideo ? 'video' : 'logo'}.`);
+      void refresh();
+    },
+  });
+  const busy = upload.isPending || reset.isPending;
+  const error = upload.error ?? reset.error;
+
+  return (
+    <article className="flex h-full flex-col rounded-sm border border-ink-700 bg-ink-850" aria-labelledby={`${mediaKey}-name`}>
+      <div className="relative grid aspect-video place-items-center overflow-hidden rounded-t-sm bg-ink-950">
+        {isVideo ? (
+          <video
+            key={headerVideoUrl()}
+            // Browsers only autoplay videos that are muted before play() is called.
+            ref={(el) => {
+              if (!el) return;
+              el.muted = true;
+              void el.play().catch(() => {});
+            }}
+            src={headerVideoUrl()}
+            className="absolute inset-0 size-full object-cover"
+            muted
+            loop
+            playsInline
+            autoPlay
+            aria-label="Preview of the background video"
+          />
+        ) : (
+          <div className="pointer-events-none px-6" inert>
+            <Logo />
+          </div>
+        )}
+        {upload.isPending && (
+          <div className="absolute inset-0 grid place-items-center bg-ink-950/75 px-4 text-center text-gold-200" role="status">
+            Uploading{isVideo ? ' your video. Large videos can take a minute' : ''}…
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 id={`${mediaKey}-name`} className="text-2xl">
+            {name}
+          </h3>
+          {row ? <Badge tone="success">Yours</Badge> : <Badge tone="neutral">Original</Badge>}
+        </div>
+        <p className="mt-2 text-sm leading-relaxed text-ivory-300">
+          <span className="font-semibold text-mist-400">Where it appears: </span>
+          {where}
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-mist-400">{rules.help}</p>
+        {!isVideo && (
+          <p className="mt-1 text-sm leading-relaxed text-mist-400">
+            A wide logo with a transparent background looks best on the dark header.
+          </p>
+        )}
+
+        {notice && !busy && !error && (
+          <p role="status" className="mt-3 text-sm text-[#a8d08d]">
+            ✓ {notice}
+          </p>
+        )}
+        {error && (
+          <Alert tone="error" className="mt-3">
+            {errorMessage(error)}
+          </Alert>
+        )}
+
+        <div className="mt-auto flex flex-wrap gap-2 pt-5">
+          <input
+            ref={fileInput}
+            type="file"
+            accept={rules.mimeTypes.join(',')}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) upload.mutate(file);
+              e.target.value = '';
+            }}
+          />
+          <Button size="sm" loading={upload.isPending} disabled={busy} onClick={() => fileInput.current?.click()}>
+            {isVideo ? 'Upload New Video' : 'Upload New Logo'}
+          </Button>
+          {row && (
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => setConfirmReset(true)}>
+              Use Original
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={confirmReset} onClose={() => !reset.isPending && setConfirmReset(false)} title={`Go back to the original ${isVideo ? 'video' : 'logo'}?`}>
+        <p className="leading-relaxed text-ivory-200">
+          The website will show the original {isVideo ? 'background video' : 'BuiltRight logo'} again, and the file you uploaded will be deleted.
         </p>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmReset(false)}>

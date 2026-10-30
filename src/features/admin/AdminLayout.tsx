@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/cn';
 import { usePageMeta } from '@/lib/usePageMeta';
 import { LoadingState } from '@/components/ui/States';
-import { LogoMark } from '@/components/layout/Logo';
+import { LogoMark, useCustomLogo } from '@/components/layout/Logo';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { getOverviewCounts } from './api/misc';
 import { adminKeys } from './keys';
@@ -15,7 +15,7 @@ const NAV = [
   { to: '/admin/orders', label: 'Orders', badge: 'pendingOrders' },
   { to: '/admin/products', label: 'Products', badge: 'lowStock' },
   { to: '/admin/portfolio', label: 'Portfolio', badge: null },
-  { to: '/admin/photos', label: 'Site Photos', badge: null },
+  { to: '/admin/photos', label: 'Logo & Photos', badge: null },
   { to: '/admin/inquiries', label: 'Messages', badge: 'newInquiries' },
   { to: '/admin/customers', label: 'Customers', badge: null },
   { to: '/admin/settings', label: 'Settings', badge: null },
@@ -24,6 +24,7 @@ const NAV = [
 export function AdminLayout() {
   usePageMeta({ title: 'Dashboard', description: 'Admin dashboard', noIndex: true });
   const { profile, user, signOut } = useAuth();
+  const customLogoImage = useCustomLogo();
   // Refreshes every minute so new activity shows up without reloading.
   const counts = useQuery({ queryKey: adminKeys.counts(), queryFn: getOverviewCounts, refetchInterval: 60_000 });
 
@@ -38,7 +39,11 @@ export function AdminLayout() {
       <header className="sticky top-0 z-30 border-b border-gold-500/20 bg-ink-950/90 backdrop-blur-md">
         <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/admin" className="flex items-center gap-3">
-            <LogoMark className="size-9" />
+            {customLogoImage ? (
+              <img src={customLogoImage.url} alt="" className="h-9 w-auto max-w-[140px] object-contain" />
+            ) : (
+              <LogoMark className="size-9" />
+            )}
             <span className="leading-tight">
               <span className="block font-brand text-sm font-semibold tracking-wider text-gold-300">BUILTRIGHT</span>
               <span className="block text-[0.65rem] tracking-[0.3em] text-mist-400 uppercase">Dashboard</span>

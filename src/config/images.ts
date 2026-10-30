@@ -126,17 +126,48 @@ export const EDITABLE_PHOTO_GROUPS: { page: string; path: string; photos: Editab
   },
 ];
 
+/** Logo and header video, also changeable in Admin → Logo & Photos. */
+export const BRAND_LOGO_KEY = 'brand/logo';
+export const BRAND_VIDEO_KEY = 'brand/header-video';
+export const DEFAULT_HEADER_VIDEO = '/media/workshop.mp4';
+
 /** Replacements saved in the dashboard (loaded from the site_photos table at startup). */
 const overrides = new Map<string, { url: string; alt: string }>();
+let version = 0;
+const listeners = new Set<() => void>();
+const changed = () => {
+  version++;
+  for (const listener of listeners) listener();
+};
 
 export function applySitePhotoOverrides(rows: { key: string; url: string | null; alt: string }[]) {
   overrides.clear();
   for (const row of rows) if (row.url) overrides.set(row.key, { url: row.url, alt: row.alt });
+  changed();
 }
 
 export function setSitePhotoOverride(key: string, value: { url: string; alt: string } | null) {
   if (value) overrides.set(key, value);
   else overrides.delete(key);
+  changed();
+}
+
+/** For useSyncExternalStore: re-render the logo and video as soon as they change. */
+export const siteMediaStore = {
+  subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  },
+  getVersion: () => version,
+};
+
+/** The uploaded logo, or null to use the built-in BuiltRight logo. */
+export function customLogo(): { url: string; alt: string } | null {
+  return overrides.get(BRAND_LOGO_KEY) ?? null;
+}
+
+export function headerVideoUrl(): string {
+  return overrides.get(BRAND_VIDEO_KEY)?.url ?? DEFAULT_HEADER_VIDEO;
 }
 
 export function isSitePhotoReplaced(key: string): boolean {

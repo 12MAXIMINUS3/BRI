@@ -1,6 +1,6 @@
 import { applyBusinessSettings, type BusinessSettingsRow } from '@/config/business';
 import { applySitePhotoOverrides } from '@/config/images';
-import { catalogImageUrl, supabase } from '@/lib/supabase';
+import { siteMediaUrl, supabase } from '@/lib/supabase';
 
 /**
  * Loads business settings and the owner's replacement site photos before the
@@ -22,7 +22,7 @@ export async function loadBusinessSettings(): Promise<void> {
     const [s, p] = result;
     if (!s.error && s.data) applyBusinessSettings(s.data);
     if (!p.error && p.data) {
-      applySitePhotoOverrides(p.data.map((row) => ({ key: row.key, url: catalogImageUrl(row.storage_path), alt: row.alt })));
+      applySitePhotoOverrides(p.data.map((row) => ({ key: row.key, url: siteMediaUrl(row.key, row.storage_path), alt: row.alt })));
     }
   } catch {
     // Keep defaults.

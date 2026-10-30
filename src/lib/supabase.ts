@@ -34,6 +34,18 @@ export function catalogImageUrl(path: string | null): string | null {
   return supabase.storage.from('catalog-images').getPublicUrl(path).data.publicUrl;
 }
 
+/**
+ * Public URL for a dashboard-managed site photo, logo, or video. Brand files
+ * (keys starting with "brand/") live in the `site-media` bucket.
+ */
+export function siteMediaUrl(key: string, path: string | null): string | null {
+  if (!key.startsWith('brand/')) return catalogImageUrl(path);
+  if (!path) return null;
+  if (path.startsWith('/')) return path;
+  if (!supabase) return null;
+  return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;
+}
+
 /** Turns a PostgREST/Postgres error into a plain Error with a readable message. */
 export function toError(error: { message: string } | null | undefined, fallback = 'Something went wrong.'): Error {
   return new Error(error?.message || fallback);
