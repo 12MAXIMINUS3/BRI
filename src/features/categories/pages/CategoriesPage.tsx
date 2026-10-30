@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
-import { categoryLabel, DEPARTMENTS } from '@/config/catalog';
+import { categoryLabel, DEPARTMENTS, type CategorySlug } from '@/config/catalog';
+import { sitePhoto } from '@/config/images';
 import { usePageMeta } from '@/lib/usePageMeta';
 import { VideoHeader } from '@/components/media/VideoHeader';
 import { WoodImage } from '@/components/media/WoodImage';
@@ -7,26 +8,9 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { PlaceholderCopy } from '@/components/ui/DemoLabel';
 import { ArrowRightIcon } from '@/components/ui/icons';
-import type { WoodTone } from '@/types/media';
 
-/** Sample photo for each furniture type (replace with the business's own photos). */
-const PHOTOS: Record<string, { file: string; alt: string; tone: WoodTone }> = {
-  tables: { file: 'dining-table-view', alt: 'Wooden dining table by a window', tone: 'walnut' },
-  seating: { file: 'armchair', alt: 'Wooden armchair with a cushion', tone: 'ash' },
-  storage: { file: 'bookshelf', alt: 'Wall of wooden bookshelves', tone: 'oak' },
-  cabinetry: { file: 'kitchen', alt: 'Kitchen with fitted cabinets and an island', tone: 'maple' },
-  beds: { file: 'bedroom', alt: 'Bright bedroom', tone: 'cherry' },
-  outdoor: { file: 'outdoor-table', alt: 'Wooden outdoor table with stools', tone: 'teak' },
-  decor: { file: 'cutting-board-herbs', alt: 'Wooden board with herbs and spices', tone: 'walnut' },
-  other: { file: 'wood-planks', alt: 'Wooden planks', tone: 'oak' },
-};
-
-const photo = (slug: string) => {
-  const p = PHOTOS[slug];
-  return p
-    ? { id: `cat-${slug}`, url: `/images/stock/${p.file}-1400.webp`, alt: p.alt, tone: p.tone }
-    : { id: `cat-${slug}`, url: null, alt: categoryLabel(slug), tone: 'oak' as const };
-};
+/** Photo for each furniture type. Change them in src/config/images.ts. */
+const photo = (slug: CategorySlug) => sitePhoto(`categories/${slug}`);
 
 export function CategoriesPage() {
   usePageMeta({
@@ -99,12 +83,7 @@ export function CategoriesPage() {
             <div className="relative">
               <div aria-hidden="true" className="absolute inset-0 translate-x-4 translate-y-4 rounded-sm border border-gold-500/40" />
               <WoodImage
-                image={{
-                  id: 'cat-interior',
-                  url: '/images/stock/modern-living-room-1400.webp',
-                  alt: 'Living room with an armchair and sofa',
-                  tone: 'walnut',
-                }}
+                image={sitePhoto('categories/interior-design', 'walnut')}
                 sizes="(min-width: 1024px) 45vw, 100vw"
                 className="relative aspect-[4/3] rounded-sm shadow-card"
               />

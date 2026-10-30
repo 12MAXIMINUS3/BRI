@@ -95,7 +95,7 @@ export async function saveCatalogItem(
 
 export async function deleteCatalogItem(kind: CatalogKind, id: string) {
   // Image rows cascade with the item; collect their files first so storage doesn't keep orphans.
-  const paths = (await listImages(kind, id)).map((img) => img.storage_path).filter((p): p is string => !!p);
+  const paths = (await listImages(kind, id)).map((img) => img.storage_path).filter((p): p is string => !!p && !p.startsWith('/'));
   const result = await db().from(TABLE[kind]).delete().eq('id', id);
   if (result.error?.code === '23503') {
     throw new Error('This item is referenced by existing orders or requests. Archive it instead.');
@@ -160,7 +160,10 @@ export async function updateImage(kind: CatalogKind, id: string, changes: { alt?
 
 export async function deleteImage(kind: CatalogKind, image: CatalogImage) {
   check(await db().from(IMAGE_TABLE[kind]).delete().eq('id', image.id), 'Could not remove the image.');
-  if (image.storage_path) await db().storage.from('catalog-images').remove([image.storage_path]);
+  // Bundled sample photos (paths starting with /) aren't in storage.
+  if (image.storage_path && !image.storage_path.startsWith('/')) {
+    await db().storage.from('catalog-images').remove([image.storage_path]);
+  }
 }
 
 function imageSize(file: File): Promise<{ width: number; height: number }> {

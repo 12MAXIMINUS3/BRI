@@ -4,6 +4,7 @@ import { WoodImage } from '@/components/media/WoodImage';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { ArrowRightIcon } from '@/components/ui/icons';
+import { sitePhoto } from '@/config/images';
 
 const PATHS = [
   {
@@ -60,14 +61,14 @@ export function Hero() {
             {/* Offset gold frame */}
             <div aria-hidden="true" className="absolute inset-0 translate-x-4 translate-y-4 rounded-sm border border-gold-500/50" />
             <WoodImage
-              image={{ id: 'hero-1', url: null, alt: 'A finished walnut dining table', tone: 'walnut' }}
+              image={sitePhoto('home/hero', 'walnut')}
               priority
               sizes="(min-width: 1024px) 40vw, 90vw"
               className="relative aspect-[4/5] rounded-sm shadow-card"
             />
             <div className="absolute -bottom-8 -left-6 hidden w-44 sm:block">
               <WoodImage
-                image={{ id: 'hero-2', url: null, alt: 'Hand-cut joinery detail', tone: 'oak' }}
+                image={sitePhoto('home/hero-detail', 'oak')}
                 sizes="180px"
                 className="aspect-square rounded-sm border-4 border-ink-950 shadow-card"
               />

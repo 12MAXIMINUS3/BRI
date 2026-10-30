@@ -167,3 +167,20 @@ Permission, quotation-acceptance, duplicate-submission, and overselling tests ru
 - A rate-limited `submit_contact_inquiry` function
 - Supabase Auth: register, sign in, sign out, reset password, and returning to the intended page after sign-in
 - `src/lib/supabase.ts` and replacing the demo `api.ts` bodies with real queries
+
+## Replacing photos
+
+Every photo the site shows by itself (home page, About, Categories, and the demo
+projects and products) is listed in **`src/config/images.ts`**. The current ones
+are free sample photos (credits in `public/images/stock/CREDITS.md`) and carry a
+small "Sample photo" tag while `VITE_SHOW_DEMO_LABELS` is on.
+
+To use your own:
+
+1. Copy the photo into `public/images/`, e.g. `public/images/living-room.jpg`.
+2. In `src/config/images.ts`, change that entry's `src` to `'/images/living-room.jpg'`
+   and update `alt` to describe the photo.
+3. Run `npm test`. It fails if any listed photo file is missing.
+
+Products and portfolio projects in the database get their photos from the admin
+dashboard (**Admin → Products / Portfolio → Upload Photos**), not this file.

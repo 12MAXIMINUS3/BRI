@@ -1,4 +1,5 @@
 import type { PortfolioProject } from './types';
+import { sitePhoto } from '@/config/images';
 
 /**
  * DEMO CONTENT. These entries illustrate how the portfolio looks. They are
@@ -20,9 +21,9 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     finishes: ['Hardwax oil'],
     dimensions: 'W 2200 × D 950 × H 750 mm',
     images: [
-      { id: 'dp1-1', url: null, alt: 'Walnut dining table in a bright dining room', tone: 'walnut' },
-      { id: 'dp1-2', url: null, alt: 'Close-up of the walnut grain and eased edge', tone: 'walnut' },
-      { id: 'dp1-3', url: null, alt: 'Detail of the tapered leg and apron joint', tone: 'cherry' },
+      sitePhoto('work/walnut-dining-table-1', 'walnut'),
+      sitePhoto('work/walnut-dining-table-2', 'walnut'),
+      sitePhoto('work/walnut-dining-table-3', 'cherry'),
     ],
     featured: true,
     isDemo: true,
@@ -41,8 +42,8 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     finishes: ['Clear lacquer, matte'],
     dimensions: 'Two units, each approx. W 1050 × D 380 × H 2400 mm',
     images: [
-      { id: 'dp2-1', url: null, alt: 'Oak shelving fitted into two alcoves', tone: 'oak' },
-      { id: 'dp2-2', url: null, alt: 'Flush cupboard doors below the shelves', tone: 'oak' },
+      sitePhoto('work/oak-alcove-shelving-1', 'oak'),
+      sitePhoto('work/oak-alcove-shelving-2', 'oak'),
     ],
     featured: true,
     isDemo: true,
@@ -60,8 +61,8 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     finishes: ['Natural oil'],
     dimensions: 'W 700 × D 780 × H 720 mm, seat height 380 mm',
     images: [
-      { id: 'dp3-1', url: null, alt: 'Ash lounge chair with woven seat', tone: 'ash' },
-      { id: 'dp3-2', url: null, alt: 'Steam-bent back rail detail', tone: 'maple' },
+      sitePhoto('work/ash-lounge-chair-1', 'ash'),
+      sitePhoto('work/ash-lounge-chair-2', 'maple'),
     ],
     featured: true,
     isDemo: true,
@@ -78,7 +79,7 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     materials: ['Teak', 'Stainless steel fixings'],
     finishes: ['Exterior oil'],
     dimensions: 'W 1500 × D 560 × H 850 mm',
-    images: [{ id: 'dp4-1', url: null, alt: 'Teak garden bench on a patio', tone: 'teak' }],
+    images: [sitePhoto('work/teak-garden-bench-1', 'teak')],
     featured: false,
     isDemo: true,
   },
@@ -95,8 +96,8 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     finishes: ['Natural oil'],
     dimensions: 'Fits a king-size mattress; headboard height 1050 mm',
     images: [
-      { id: 'dp5-1', url: null, alt: 'Cherry bed frame with slatted headboard', tone: 'cherry' },
-      { id: 'dp5-2', url: null, alt: 'Headboard slat detail', tone: 'cherry' },
+      sitePhoto('work/cherry-bed-frame-1', 'cherry'),
+      sitePhoto('work/cherry-bed-frame-2', 'cherry'),
     ],
     featured: false,
     isDemo: true,
@@ -113,7 +114,7 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     materials: ['Hard maple', 'Birch plywood carcass'],
     finishes: ['Food-safe oil (top)', 'Clear lacquer, satin (base)'],
     dimensions: 'W 1600 × D 800 × H 910 mm',
-    images: [{ id: 'dp6-1', url: null, alt: 'Maple kitchen island with drawers', tone: 'maple' }],
+    images: [sitePhoto('work/maple-kitchen-island-1', 'maple'), sitePhoto('work/maple-kitchen-island-2', 'maple')],
     featured: false,
     isDemo: true,
   },
@@ -129,7 +130,7 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     materials: ['Solid oak', 'Oak veneered board'],
     finishes: ['Hardwax oil'],
     dimensions: null,
-    images: [{ id: 'dp7-1', url: null, alt: 'Low oak media console', tone: 'oak' }],
+    images: [sitePhoto('work/oak-media-console-1', 'oak')],
     featured: false,
     isDemo: true,
   },
@@ -143,7 +144,7 @@ export const DEMO_PROJECTS: PortfolioProject[] = [
     materials: ['Walnut'],
     finishes: ['Food-safe oil'],
     dimensions: 'Small, medium, and large; up to 600 mm long',
-    images: [{ id: 'dp8-1', url: null, alt: 'Three walnut serving boards', tone: 'walnut' }],
+    images: [sitePhoto('work/walnut-serving-boards-1', 'walnut')],
     featured: false,
     isDemo: true,
   },

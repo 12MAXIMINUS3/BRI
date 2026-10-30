@@ -27,7 +27,10 @@ export function requireSupabase(): SupabaseClient {
 
 /** Public URL for an image in the `catalog-images` bucket. */
 export function catalogImageUrl(path: string | null): string | null {
-  if (!path || !supabase) return null;
+  if (!path) return null;
+  // Paths starting with "/" are photos bundled with the site (e.g. the demo content's sample photos).
+  if (path.startsWith('/')) return path;
+  if (!supabase) return null;
   return supabase.storage.from('catalog-images').getPublicUrl(path).data.publicUrl;
 }
 

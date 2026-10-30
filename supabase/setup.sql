@@ -1362,56 +1362,59 @@ select slug, title, category, summary, description, materials, finishes, dimensi
 from projects
 on conflict (slug) do nothing;
 
-insert into public.portfolio_images (project_id, alt, tone, position)
-select p.id, i.alt, i.tone::public.wood_tone, i.position
+-- Images are sample stock photos bundled with the site (paths starting with "/").
+-- Replace them by uploading your own photos in the admin dashboard.
+insert into public.portfolio_images (project_id, storage_path, alt, tone, position)
+select p.id, i.storage_path, i.alt, i.tone::public.wood_tone, i.position
 from (values
-  ('walnut-dining-table', 'Walnut dining table in a bright dining room', 'walnut', 0),
-  ('walnut-dining-table', 'Close-up of the walnut grain and eased edge', 'walnut', 1),
-  ('walnut-dining-table', 'Detail of the tapered leg and apron joint', 'cherry', 2),
-  ('oak-alcove-shelving', 'Oak shelving fitted into two alcoves', 'oak', 0),
-  ('oak-alcove-shelving', 'Flush cupboard doors below the shelves', 'oak', 1),
-  ('ash-lounge-chair', 'Ash lounge chair with woven seat', 'ash', 0),
-  ('ash-lounge-chair', 'Steam-bent back rail detail', 'maple', 1),
-  ('teak-garden-bench', 'Teak garden bench on a patio', 'teak', 0),
-  ('cherry-bed-frame', 'Cherry bed frame with slatted headboard', 'cherry', 0),
-  ('cherry-bed-frame', 'Headboard slat detail', 'cherry', 1),
-  ('maple-kitchen-island', 'Maple kitchen island with drawers', 'maple', 0),
-  ('oak-media-console', 'Low oak media console', 'oak', 0),
-  ('walnut-serving-boards', 'Three walnut serving boards', 'walnut', 0)
-) as i (slug, alt, tone, position)
+  ('walnut-dining-table', '/images/stock/dining-table-view-1400.webp', 'Wooden dining table by a window with a city view', 'walnut', 0),
+  ('walnut-dining-table', '/images/stock/rustic-tabletop-1400.webp', 'Close-up of a solid wood tabletop', 'walnut', 1),
+  ('walnut-dining-table', '/images/stock/dining-room-1400.webp', 'Dining room with a wooden table and chairs', 'cherry', 2),
+  ('oak-alcove-shelving', '/images/stock/shelving-living-room-1400.webp', 'Living room with floor-to-ceiling shelving', 'oak', 0),
+  ('oak-alcove-shelving', '/images/stock/library-shelves-1400.webp', 'Wooden bookshelves in a reading room', 'oak', 1),
+  ('ash-lounge-chair', '/images/stock/armchair-1400.webp', 'Wooden armchair with a cushion by a window', 'ash', 0),
+  ('ash-lounge-chair', '/images/stock/minimal-living-room-1400.webp', 'Cosy living room with a sofa', 'maple', 1),
+  ('teak-garden-bench', '/images/stock/outdoor-table-1400.webp', 'Wooden outdoor table with stools', 'teak', 0),
+  ('cherry-bed-frame', '/images/stock/bedroom-1400.webp', 'Bright bedroom with a desk', 'cherry', 0),
+  ('cherry-bed-frame', '/images/stock/breakfast-tray-1400.webp', 'Breakfast served on a wooden tray', 'cherry', 1),
+  ('maple-kitchen-island', '/images/stock/kitchen-1400.webp', 'Kitchen with an island and pendant lights', 'maple', 0),
+  ('maple-kitchen-island', '/images/stock/kitchen-drawer-1400.webp', 'Wooden drawer organiser holding cutlery', 'maple', 1),
+  ('oak-media-console', '/images/stock/wood-panelled-room-1400.webp', 'Wood-panelled wall with a low cabinet', 'oak', 0),
+  ('walnut-serving-boards', '/images/stock/cutting-board-herbs-1400.webp', 'Wooden board with herbs and spices', 'walnut', 0)
+) as i (slug, storage_path, alt, tone, position)
 join public.portfolio_projects p on p.slug = i.slug and p.is_demo
 where not exists (select 1 from public.portfolio_images x where x.project_id = p.id);
 
-with items (slug, name, category, summary, description, price_minor, stock_quantity, materials, finish, dimensions, featured, sort_order, alt, tone) as (
+with items (slug, name, category, summary, description, price_minor, stock_quantity, materials, finish, dimensions, featured, sort_order, alt, storage_path, tone) as (
   values
   ('oak-side-table', 'Oak side table', 'tables'::public.product_category,
    'A compact side table with a lower shelf, sized for beside a sofa or bed.',
    'A small side table in solid oak with a lower shelf. The top has a slight chamfer on the underside so it looks lighter than its thickness.',
-   32000, 4, array['Solid oak'], 'Hardwax oil', 'W 450 × D 450 × H 550 mm', true, 1, 'Oak side table with lower shelf', 'oak'),
+   32000, 4, array['Solid oak'], 'Hardwax oil', 'W 450 × D 450 × H 550 mm', true, 1, 'Round side table beside an armchair', '/images/stock/side-table-1400.webp', 'oak'),
   ('walnut-wall-shelf', 'Walnut wall shelf', 'storage',
    'A floating shelf with a concealed bracket, cut from a single board.',
    'A single-board walnut shelf with a hidden steel bracket. Wall fixings suitable for masonry are included.',
-   14500, 2, array['Solid walnut', 'Steel bracket'], 'Natural oil', 'W 900 × D 220 × H 40 mm', true, 2, 'Floating walnut shelf on a plain wall', 'walnut'),
+   14500, 2, array['Solid walnut', 'Steel bracket'], 'Natural oil', 'W 900 × D 220 × H 40 mm', true, 2, 'Wooden shelf with potted plants', '/images/stock/wall-shelf-plants-1400.webp', 'walnut'),
   ('ash-step-stool', 'Ash step stool', 'seating',
    'A sturdy two-step stool that doubles as a plant stand or bedside perch.',
    'A two-step stool with through-tenoned steps and a hand hole for carrying.',
-   18000, 0, array['Solid ash'], 'Clear lacquer, matte', 'W 420 × D 380 × H 450 mm', true, 3, 'Ash two-step stool', 'ash'),
+   18000, 0, array['Solid ash'], 'Clear lacquer, matte', 'W 420 × D 380 × H 450 mm', true, 3, 'Wooden table and benches in sunlight', '/images/stock/benches-1400.webp', 'ash'),
   ('cherry-serving-tray', 'Cherry serving tray', 'decor',
    'A shallow tray with carved handles and a food-safe finish.',
    'A shallow serving tray with carved handles. Wipe clean; not dishwasher safe.',
-   6500, 9, array['Solid cherry'], 'Food-safe oil', 'W 500 × D 300 × H 50 mm', false, 4, 'Cherry serving tray', 'cherry'),
+   6500, 9, array['Solid cherry'], 'Food-safe oil', 'W 500 × D 300 × H 50 mm', false, 4, 'Woven tray on a dining table', '/images/stock/tray-table-1400.webp', 'cherry'),
   ('oak-coat-rack', 'Oak coat rack', 'storage',
    'A wall-mounted rack with five turned pegs.',
    'A wall-mounted rack with five turned oak pegs set into a solid backboard.',
-   9500, 6, array['Solid oak'], 'Hardwax oil', 'W 800 × D 90 × H 120 mm', false, 5, 'Oak coat rack with five pegs', 'oak'),
+   9500, 6, array['Solid oak'], 'Hardwax oil', 'W 800 × D 90 × H 120 mm', false, 5, 'Hallway with a wooden floor and shelving', '/images/stock/hallway-1400.webp', 'oak'),
   ('teak-planter-box', 'Teak planter box', 'outdoor',
    'A planter box with a removable liner and raised feet for drainage.',
    'An outdoor planter in teak with a removable liner and raised feet so water can drain freely.',
-   21000, 3, array['Teak'], 'Exterior oil', 'W 600 × D 300 × H 350 mm', false, 6, 'Teak planter box', 'teak'),
+   21000, 3, array['Teak'], 'Exterior oil', 'W 600 × D 300 × H 350 mm', false, 6, 'Plants in terracotta pots', '/images/stock/terracotta-planters-1400.webp', 'teak'),
   ('maple-cutting-board', 'Maple cutting board', 'decor',
    'An end-grain board that is gentle on knife edges.',
    'An end-grain cutting board in hard maple with rubber feet.',
-   8500, 1, array['Hard maple'], 'Food-safe oil', 'W 450 × D 300 × H 40 mm', false, 7, 'End-grain maple cutting board', 'maple')
+   8500, 1, array['Hard maple'], 'Food-safe oil', 'W 450 × D 300 × H 40 mm', false, 7, 'End-grain wood blocks', '/images/stock/end-grain-1400.webp', 'maple')
 ),
 inserted as (
   insert into public.products
@@ -1423,8 +1426,8 @@ inserted as (
   on conflict (slug) do nothing
   returning id, slug
 )
-insert into public.product_images (product_id, alt, tone, position)
-select ins.id, items.alt, items.tone::public.wood_tone, 0
+insert into public.product_images (product_id, storage_path, alt, tone, position)
+select ins.id, items.storage_path, items.alt, items.tone::public.wood_tone, 0
 from inserted ins join items on items.slug = ins.slug;
 -- =============================================================================
 -- Profile email
@@ -1472,44 +1475,3 @@ create trigger on_auth_user_email_changed after update of email on auth.users
   execute function public.sync_profile_email();
 
 create index profiles_email_idx on public.profiles (lower(email));
--- =============================================================================
--- DEMO CONTENT: sample photos
--- Points the demo projects' and products' images at free-licensed stock photos
--- bundled with the site (public/images/stock, see CREDITS.md). Paths starting
--- with "/" are served by the website itself rather than Supabase Storage.
--- Only rows marked is_demo are touched; replace them in the admin dashboard.
--- =============================================================================
-
-update public.portfolio_images i
-   set storage_path = '/images/stock/' || m.file || '-1400.webp', alt = m.alt
-  from (values
-    ('walnut-dining-table', 0, 'dining-table-view', 'Wooden dining table by a window with a city view'),
-    ('walnut-dining-table', 1, 'rustic-tabletop', 'Close-up of a solid wood tabletop'),
-    ('walnut-dining-table', 2, 'dining-room', 'Dining room with a wooden table and chairs'),
-    ('oak-alcove-shelving', 0, 'shelving-living-room', 'Living room with floor-to-ceiling shelving'),
-    ('oak-alcove-shelving', 1, 'library-shelves', 'Wooden bookshelves in a reading room'),
-    ('ash-lounge-chair', 0, 'armchair', 'Wooden armchair with a cushion by a window'),
-    ('ash-lounge-chair', 1, 'modern-living-room', 'Living room with an armchair and sofa'),
-    ('teak-garden-bench', 0, 'outdoor-table', 'Wooden outdoor table with stools'),
-    ('cherry-bed-frame', 0, 'bedroom', 'Bright bedroom with a desk'),
-    ('cherry-bed-frame', 1, 'breakfast-tray', 'Breakfast served on a wooden tray'),
-    ('maple-kitchen-island', 0, 'kitchen', 'Kitchen with an island and pendant lights'),
-    ('oak-media-console', 0, 'wood-panelled-room', 'Wood-panelled wall with a low cabinet'),
-    ('walnut-serving-boards', 0, 'cutting-board-herbs', 'Wooden board with herbs and spices')
-  ) as m (slug, position, file, alt)
-  join public.portfolio_projects p on p.slug = m.slug and p.is_demo
- where i.project_id = p.id and i.position = m.position and i.storage_path is null;
-
-update public.product_images i
-   set storage_path = '/images/stock/' || m.file || '-1400.webp', alt = m.alt
-  from (values
-    ('oak-side-table', 'side-table', 'Round side table beside an armchair'),
-    ('walnut-wall-shelf', 'wall-shelf-plants', 'Wooden shelf with potted plants'),
-    ('ash-step-stool', 'benches', 'Wooden table and benches in sunlight'),
-    ('cherry-serving-tray', 'tray-table', 'Woven tray on a dining table'),
-    ('oak-coat-rack', 'hallway', 'Hallway with a wooden floor and shelving'),
-    ('teak-planter-box', 'terracotta-planters', 'Plants in terracotta pots'),
-    ('maple-cutting-board', 'end-grain', 'End-grain wood blocks')
-  ) as m (slug, file, alt)
-  join public.products p on p.slug = m.slug and p.is_demo
- where i.product_id = p.id and i.position = 0 and i.storage_path is null;

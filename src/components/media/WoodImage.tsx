@@ -30,12 +30,22 @@ export function WoodImage({ image, className, sizes = '100vw', priority = false 
   const [failed, setFailed] = useState(false);
   const url = failed ? null : (image?.url ?? null);
   const alt = image?.alt ?? '';
+  // Bundled sample photos ship in two widths (name-1400.webp and name-700.webp).
+  const isSample = !!url && url.startsWith('/images/stock/');
+  const srcSet =
+    isSample && url.endsWith('-1400.webp') ? `${url.replace(/-1400\.webp$/, '-700.webp')} 700w, ${url} 1400w` : undefined;
 
   return (
     <div className={cn('relative overflow-hidden bg-ink-800', className)}>
+      {isSample && business.showDemoLabels && (
+        <span className="pointer-events-none absolute right-3 bottom-3 z-10 rounded-full border border-gold-500/40 bg-ink-950/70 px-2.5 py-1 text-[0.62rem] font-semibold tracking-[0.18em] text-gold-300 uppercase backdrop-blur-sm">
+          Sample photo
+        </span>
+      )}
       {url ? (
         <img
           src={url}
+          srcSet={srcSet}
           alt={alt}
           width={image?.width}
           height={image?.height}

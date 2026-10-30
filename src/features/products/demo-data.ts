@@ -1,4 +1,5 @@
 import type { Product } from './types';
+import { sitePhoto } from '@/config/images';
 
 /**
  * DEMO CONTENT. Sample ready-made products for layout and testing.
@@ -21,8 +22,8 @@ export const DEMO_PRODUCTS: Product[] = [
     finish: 'Hardwax oil',
     dimensions: 'W 450 × D 450 × H 550 mm',
     images: [
-      { id: 'pi1-1', url: null, alt: 'Oak side table with lower shelf', tone: 'oak' },
-      { id: 'pi1-2', url: null, alt: 'Oak side table top detail', tone: 'oak' },
+      sitePhoto('shop/oak-side-table-1', 'oak'),
+      sitePhoto('shop/oak-side-table-2', 'oak'),
     ],
     featured: true,
     isDemo: true,
@@ -39,7 +40,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Solid walnut', 'Steel bracket'],
     finish: 'Natural oil',
     dimensions: 'W 900 × D 220 × H 40 mm',
-    images: [{ id: 'pi2-1', url: null, alt: 'Floating walnut shelf on a plain wall', tone: 'walnut' }],
+    images: [sitePhoto('shop/walnut-wall-shelf-1', 'walnut')],
     featured: true,
     isDemo: true,
   },
@@ -55,7 +56,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Solid ash'],
     finish: 'Clear lacquer, matte',
     dimensions: 'W 420 × D 380 × H 450 mm',
-    images: [{ id: 'pi3-1', url: null, alt: 'Ash two-step stool', tone: 'ash' }],
+    images: [sitePhoto('shop/ash-step-stool-1', 'ash')],
     featured: true,
     isDemo: true,
   },
@@ -71,7 +72,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Solid cherry'],
     finish: 'Food-safe oil',
     dimensions: 'W 500 × D 300 × H 50 mm',
-    images: [{ id: 'pi4-1', url: null, alt: 'Cherry serving tray', tone: 'cherry' }],
+    images: [sitePhoto('shop/cherry-serving-tray-1', 'cherry')],
     featured: false,
     isDemo: true,
   },
@@ -87,7 +88,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Solid oak'],
     finish: 'Hardwax oil',
     dimensions: 'W 800 × D 90 × H 120 mm',
-    images: [{ id: 'pi5-1', url: null, alt: 'Oak coat rack with five pegs', tone: 'oak' }],
+    images: [sitePhoto('shop/oak-coat-rack-1', 'oak')],
     featured: false,
     isDemo: true,
   },
@@ -103,7 +104,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Teak'],
     finish: 'Exterior oil',
     dimensions: 'W 600 × D 300 × H 350 mm',
-    images: [{ id: 'pi6-1', url: null, alt: 'Teak planter box', tone: 'teak' }],
+    images: [sitePhoto('shop/teak-planter-box-1', 'teak')],
     featured: false,
     isDemo: true,
   },
@@ -119,7 +120,7 @@ export const DEMO_PRODUCTS: Product[] = [
     materials: ['Hard maple'],
     finish: 'Food-safe oil',
     dimensions: 'W 450 × D 300 × H 40 mm',
-    images: [{ id: 'pi7-1', url: null, alt: 'End-grain maple cutting board', tone: 'maple' }],
+    images: [sitePhoto('shop/maple-cutting-board-1', 'maple')],
     featured: false,
     isDemo: true,
   },

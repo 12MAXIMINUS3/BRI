@@ -8,6 +8,7 @@ import { HowItWorks } from '@/features/custom-orders/components/HowItWorks';
 import { FeaturedWork } from '../components/FeaturedWork';
 import { Hero } from '../components/Hero';
 import { ShopPreview } from '../components/ShopPreview';
+import { sitePhoto } from '@/config/images';
 
 export function HomePage() {
   usePageMeta({
@@ -50,7 +51,7 @@ export function HomePage() {
             <div className="relative">
               <div aria-hidden="true" className="absolute inset-0 -translate-x-4 translate-y-4 rounded-sm border border-gold-500/40" />
               <WoodImage
-                image={{ id: 'craft', url: null, alt: 'Hands planing a board at the workbench', tone: 'teak' }}
+                image={sitePhoto('home/craftsmanship', 'teak')}
                 sizes="(min-width: 1024px) 40vw, 100vw"
                 className="relative aspect-[4/5] rounded-sm shadow-card"
               />

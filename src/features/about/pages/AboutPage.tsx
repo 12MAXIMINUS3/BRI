@@ -5,6 +5,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { PlaceholderCopy } from '@/components/ui/DemoLabel';
 import { VideoHeader } from '@/components/media/VideoHeader';
+import { sitePhoto } from '@/config/images';
 
 /**
  * All copy on this page is placeholder text for the owner to replace.
@@ -47,7 +48,7 @@ export function AboutPage() {
           </div>
           <div className="lg:col-span-6">
             <WoodImage
-              image={{ id: 'about-hero', url: null, alt: 'The workshop', tone: 'oak' }}
+              image={sitePhoto('about/workshop', 'oak')}
               priority
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="aspect-[4/3] rounded-2xl shadow-card"
@@ -59,7 +60,7 @@ export function AboutPage() {
       <Container className="grid gap-12 py-16 sm:py-24 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <WoodImage
-            image={{ id: 'about-owner', url: null, alt: 'Portrait of the owner at the workbench', tone: 'walnut' }}
+            image={sitePhoto('about/owner', 'walnut')}
             sizes="(min-width: 1024px) 40vw, 100vw"
             className="aspect-[4/5] rounded-2xl"
           />
