@@ -30,6 +30,8 @@ export const SITE_PHOTOS = {
 
   // Categories page
   'categories/interior-design': { src: '/images/stock/modern-living-room-1400.webp', alt: 'Living room with an armchair and sofa' },
+  'categories/shop-design': { src: '/images/stock/library-shelves-1400.webp', alt: 'Shop interior with floor-to-ceiling wooden display shelves' },
+  'categories/pop-wood-design': { src: '/images/stock/wood-panelled-room-1400.webp', alt: 'Room finished with wooden wall panelling' },
   'categories/tables': { src: '/images/stock/dining-table-view-1400.webp', alt: 'Wooden dining table by a window' },
   'categories/seating': { src: '/images/stock/armchair-1400.webp', alt: 'Wooden armchair with a cushion' },
   'categories/storage': { src: '/images/stock/bookshelf-1400.webp', alt: 'Wall of wooden bookshelves' },

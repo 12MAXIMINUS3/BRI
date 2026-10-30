@@ -63,6 +63,11 @@ describe('public routes', () => {
   it('categories page shows both departments and links furniture types to the shop', async () => {
     renderRoute('/categories');
     expect(await screen.findByRole('heading', { name: 'Interior Design' })).toBeInTheDocument();
+    const services = screen.getByRole('list', { name: 'Interior design services' });
+    expect(within(services).getAllByRole('link', { name: 'Request this service' }).map((a) => a.getAttribute('href'))).toEqual([
+      '/custom-order?category=shop-design',
+      '/custom-order?category=pop-wood-design',
+    ]);
     const furniture = screen.getByRole('region', { name: 'Furniture' });
     expect(within(furniture).getAllByRole('link', { name: 'Shop' })[0]).toHaveAttribute('href', '/shop?category=tables');
     expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Categories' })).toHaveAttribute('href', '/categories');

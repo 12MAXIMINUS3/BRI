@@ -54,16 +54,26 @@ export function CategoriesPage() {
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-ivory-300">{interior.description}</p>
             {interior.categories.length > 0 ? (
-              <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              <ul className="mt-8 grid gap-4 sm:grid-cols-2" aria-label="Interior design services">
                 {interior.categories.map((slug) => (
                   <li key={slug}>
-                    <Link
-                      to={`/work?category=${slug}`}
-                      className="flex items-center justify-between rounded-sm border border-ink-700 px-4 py-3 hover:border-gold-500/60"
-                    >
-                      {categoryLabel(slug)}
-                      <ArrowRightIcon className="size-4 text-gold-400" />
-                    </Link>
+                    <article className="group h-full rounded-sm border border-ink-700 bg-ink-850 transition-colors hover:border-gold-500/50">
+                      <Link to={`/custom-order?category=${slug}`} className="block">
+                        <WoodImage image={photo(slug)} sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 100vw" className="aspect-[4/3] rounded-t-sm" />
+                        <h3 className="flex items-center justify-between gap-3 px-4 pt-4 text-2xl group-hover:text-gold-300">
+                          {categoryLabel(slug)}
+                          <ArrowRightIcon className="size-4 shrink-0 text-gold-400 transition-transform group-hover:translate-x-1" />
+                        </h3>
+                      </Link>
+                      <p className="flex gap-4 px-4 pt-2 pb-4 text-sm">
+                        <Link to={`/custom-order?category=${slug}`} className="text-gold-300 hover:underline">
+                          Request this service
+                        </Link>
+                        <Link to={`/work?category=${slug}`} className="text-ivory-300 hover:text-gold-300 hover:underline">
+                          Past work
+                        </Link>
+                      </p>
+                    </article>
                   </li>
                 ))}
               </ul>

@@ -17,7 +17,8 @@ create extension if not exists pgcrypto with schema extensions;
 -- ---------------------------------------------------------------------------
 create type public.app_role as enum ('customer', 'admin');
 create type public.product_category as enum
-  ('tables', 'seating', 'storage', 'cabinetry', 'beds', 'outdoor', 'decor', 'other');
+  ('tables', 'seating', 'storage', 'cabinetry', 'beds', 'outdoor', 'decor', 'other',
+   'shop-design', 'pop-wood-design');
 create type public.publish_status as enum ('draft', 'published', 'archived');
 create type public.request_status as enum
   ('submitted', 'under_review', 'quotation_sent', 'accepted', 'declined', 'cancelled');

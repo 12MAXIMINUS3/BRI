@@ -13,6 +13,9 @@ export const CATEGORIES = [
   { slug: 'outdoor', label: 'Outdoor' },
   { slug: 'decor', label: 'Décor & small goods' },
   { slug: 'other', label: 'Other' },
+  // Interior design services
+  { slug: 'shop-design', label: 'Shop Designing' },
+  { slug: 'pop-wood-design', label: 'POP Wood Design' },
 ] as const;
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
@@ -29,15 +32,15 @@ export function categoryLabel(slug: string): string {
 
 /**
  * Top-level departments. Each category slug above belongs to one department.
- * Interior design types are added here (and to the database enum) once the
- * owner confirms the list.
+ * To add a service or furniture type, add it to CATEGORIES above, list it here,
+ * and add the same slug to the product_category enum in the database.
  */
 export const DEPARTMENTS = [
   {
     slug: 'interior-design',
     label: 'Interior Design',
     description: 'Complete interiors planned and finished around how you use each space.',
-    categories: [] as CategorySlug[],
+    categories: ['shop-design', 'pop-wood-design'] as CategorySlug[],
   },
   {
     slug: 'furniture',
