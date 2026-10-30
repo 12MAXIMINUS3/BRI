@@ -15,6 +15,7 @@ const NAV = [
   { to: '/admin/orders', label: 'Orders', badge: 'pendingOrders' },
   { to: '/admin/products', label: 'Products', badge: 'lowStock' },
   { to: '/admin/portfolio', label: 'Portfolio', badge: null },
+  { to: '/admin/photos', label: 'Site Photos', badge: null },
   { to: '/admin/inquiries', label: 'Messages', badge: 'newInquiries' },
   { to: '/admin/customers', label: 'Customers', badge: null },
   { to: '/admin/settings', label: 'Settings', badge: null },

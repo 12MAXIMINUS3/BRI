@@ -188,5 +188,21 @@ await as("anon");
 ok(Number((await one("select count(*) from public.portfolio_images where storage_path is null")).count) === 0, "every demo project image has a sample photo");
 ok(Number((await one("select count(*) from public.product_images where storage_path is null")).count) === 0, "every demo product image has a sample photo");
 
+console.log('\nSite photos');
+await as('authenticated', C); // admin
+await db.query(`insert into public.site_photos (key, storage_path, alt) values ('home/hero', 'site/home-hero-1.jpg', 'Our showroom')`);
+await db.query(`update public.site_photos set alt = 'Our new showroom' where key = 'home/hero'`);
+await expectError(db.query(`insert into public.site_photos (key, storage_path, alt) values ('Bad Key!', 'x.jpg', 'x')`), /check constraint/, 'invalid photo keys are rejected');
+await as('anon');
+ok((await one(`select alt from public.site_photos where key = 'home/hero'`)).alt === 'Our new showroom', 'visitors see the replaced photo');
+await expectError(db.query(`update public.site_photos set alt = 'hacked' where key = 'home/hero'`), /permission denied/, 'visitors cannot change site photos');
+await as('authenticated', A); // customer
+await expectError(db.query(`insert into public.site_photos (key, storage_path, alt) values ('about/owner', 'x.jpg', 'x')`), /row-level security/, 'customers cannot add site photos');
+const custUpdate = await db.query(`update public.site_photos set alt = 'hacked' where key = 'home/hero' returning key`);
+ok(custUpdate.rows.length === 0, 'customers cannot change site photos (0 rows updated)');
+await as('authenticated', C);
+await db.query(`delete from public.site_photos where key = 'home/hero'`);
+ok(Number((await one(`select count(*) from public.site_photos`)).count) === 0, 'admin can reset a photo to its default');
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

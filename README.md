@@ -170,6 +170,15 @@ Permission, quotation-acceptance, duplicate-submission, and overselling tests ru
 
 ## Replacing photos
 
+**Easiest: Admin → Site Photos.** Every photo on the website's own pages is listed
+there by page (Home, About, Categories), with where it appears and its description.
+Upload a replacement (large phone photos are shrunk to 2000px automatically), edit
+the description, or go back to the original. Changes show on the site immediately.
+Replacements are stored in the `site_photos` table and the public `catalog-images`
+bucket; the defaults below still apply to anything not replaced.
+
+To change the built-in defaults in code instead:
+
 Every photo the site shows by itself (home page, About, Categories, and the demo
 projects and products) is listed in **`src/config/images.ts`**. The current ones
 are free sample photos (credits in `public/images/stock/CREDITS.md`) and carry a

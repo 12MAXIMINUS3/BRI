@@ -3,8 +3,11 @@ import type { MediaImage, WoodTone } from '@/types/media';
 /**
  * EVERY PHOTO THE WEBSITE SHOWS ON ITS OWN, IN ONE PLACE.
  *
- * The current photos are free sample photos (see public/images/stock/CREDITS.md),
- * not BuiltRight's own work. To use your own photo:
+ * The easiest way to change these is the admin dashboard: Admin → Site Photos.
+ * Photos uploaded there replace the defaults below without touching code.
+ *
+ * The defaults are free sample photos (see public/images/stock/CREDITS.md),
+ * not BuiltRight's own work. To change a default in code instead:
  *
  *   1. Copy your photo into the folder  public/images/
  *      (for example  public/images/living-room.jpg)
@@ -70,8 +73,79 @@ export const SITE_PHOTOS = {
 
 export type SitePhotoKey = keyof typeof SITE_PHOTOS;
 
+/**
+ * The photos the owner can change in Admin → Site Photos, grouped by page,
+ * with a plain-language name and where exactly each one appears.
+ */
+export interface EditablePhoto {
+  key: SitePhotoKey;
+  name: string;
+  where: string;
+}
+
+export const EDITABLE_PHOTO_GROUPS: { page: string; path: string; photos: EditablePhoto[] }[] = [
+  {
+    page: 'Home page',
+    path: '/',
+    photos: [
+      { key: 'home/hero', name: 'Main photo', where: 'The large photo at the top, beside "Furniture crafted around you". The first thing visitors see.' },
+      { key: 'home/hero-detail', name: 'Small detail photo', where: 'The second, smaller photo next to the main photo at the top.' },
+      { key: 'home/craftsmanship', name: 'Craftsmanship photo', where: 'Beside "Made by hand, one piece at a time", further down the page.' },
+    ],
+  },
+  {
+    page: 'About page',
+    path: '/about',
+    photos: [
+      { key: 'about/workshop', name: 'Workshop photo', where: 'The large photo at the top, beside "About BuiltRight Interiors".' },
+      { key: 'about/owner', name: 'Owner photo', where: 'Beside "Owner and craftsmanship". A good place for a photo of you at work.' },
+    ],
+  },
+  {
+    page: 'Categories page: Interior Design',
+    path: '/categories#interior-design',
+    photos: [
+      { key: 'categories/interior-design', name: 'Interior Design main photo', where: 'The large framed photo beside "Interior Design".' },
+      { key: 'categories/shop-design', name: 'Shop Designing', where: 'The "Shop Designing" service card.' },
+      { key: 'categories/pop-wood-design', name: 'POP Wood Design', where: 'The "POP Wood Design" service card.' },
+    ],
+  },
+  {
+    page: 'Categories page: Furniture',
+    path: '/categories#furniture',
+    photos: [
+      { key: 'categories/tables', name: 'Tables', where: 'The "Tables" card.' },
+      { key: 'categories/seating', name: 'Seating', where: 'The "Seating" card.' },
+      { key: 'categories/storage', name: 'Storage & shelving', where: 'The "Storage & shelving" card.' },
+      { key: 'categories/cabinetry', name: 'Cabinetry & built-ins', where: 'The "Cabinetry & built-ins" card.' },
+      { key: 'categories/beds', name: 'Beds', where: 'The "Beds" card.' },
+      { key: 'categories/outdoor', name: 'Outdoor', where: 'The "Outdoor" card.' },
+      { key: 'categories/decor', name: 'Décor & small goods', where: 'The "Décor & small goods" card.' },
+      { key: 'categories/other', name: 'Other', where: 'The "Other" card.' },
+    ],
+  },
+];
+
+/** Replacements saved in the dashboard (loaded from the site_photos table at startup). */
+const overrides = new Map<string, { url: string; alt: string }>();
+
+export function applySitePhotoOverrides(rows: { key: string; url: string | null; alt: string }[]) {
+  overrides.clear();
+  for (const row of rows) if (row.url) overrides.set(row.key, { url: row.url, alt: row.alt });
+}
+
+export function setSitePhotoOverride(key: string, value: { url: string; alt: string } | null) {
+  if (value) overrides.set(key, value);
+  else overrides.delete(key);
+}
+
+export function isSitePhotoReplaced(key: string): boolean {
+  return overrides.has(key);
+}
+
 /** Builds an image for <WoodImage>. The tone is the colour shown if the file can't load. */
 export function sitePhoto(key: SitePhotoKey, tone: WoodTone = 'oak'): MediaImage {
-  const { src, alt } = SITE_PHOTOS[key];
+  const custom = overrides.get(key);
+  const { src, alt } = custom ? { src: custom.url, alt: custom.alt } : SITE_PHOTOS[key];
   return { id: key, url: src, alt, tone };
 }

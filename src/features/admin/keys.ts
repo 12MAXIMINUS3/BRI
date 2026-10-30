@@ -14,4 +14,5 @@ export const adminKeys = {
   customers: (params: object) => [...adminKeys.all, 'customers', params] as const,
   settings: () => [...adminKeys.all, 'settings'] as const,
   notes: (type: string, id: string) => [...adminKeys.all, 'notes', type, id] as const,
+  sitePhotos: () => [...adminKeys.all, 'site-photos'] as const,
 };

@@ -18,6 +18,7 @@ const CatalogEditPage = named(() => import('./pages/CatalogEditPage'), 'CatalogE
 const InquiriesPage = named(() => import('./pages/InquiriesPage'), 'InquiriesPage');
 const CustomersPage = named(() => import('./pages/CustomersPage'), 'CustomersPage');
 const SettingsPage = named(() => import('./pages/SettingsPage'), 'SettingsPage');
+const SitePhotosPage = named(() => import('./pages/SitePhotosPage'), 'SitePhotosPage');
 
 export const adminRoute: RouteObject = {
   path: 'admin',
@@ -40,6 +41,7 @@ export const adminRoute: RouteObject = {
     { path: 'portfolio/:id', element: <CatalogEditPage kind="project" /> },
     { path: 'inquiries', element: <InquiriesPage /> },
     { path: 'customers', element: <CustomersPage /> },
+    { path: 'photos', element: <SitePhotosPage /> },
     { path: 'settings', element: <SettingsPage /> },
   ],
 };
