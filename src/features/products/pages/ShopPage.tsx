@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router';
-import { CATEGORIES, isCategorySlug } from '@/config/catalog';
+import { Link, useSearchParams } from 'react-router';
+import { categoryLabel, DEPARTMENTS, isCategorySlug } from '@/config/catalog';
 import { usePageMeta } from '@/lib/usePageMeta';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
+import { FilterChips } from '@/components/ui/FilterChips';
 import { inputClasses } from '@/components/ui/form/Field';
 import { SearchIcon } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/Pagination';
@@ -14,6 +15,7 @@ import { ProductCard } from '../components/ProductCard';
 import { useProducts } from '../hooks';
 
 const PAGE_SIZE = 6;
+const furnitureCategories = DEPARTMENTS.find((d) => d.slug === 'furniture')?.categories ?? [];
 
 export function ShopPage() {
   usePageMeta({
@@ -92,24 +94,6 @@ export function ShopPage() {
           </form>
 
           <div className="flex flex-wrap items-end gap-4">
-            <div>
-              <label htmlFor="shop-category" className="mb-1.5 block text-sm font-medium text-ivory-200">
-                Category
-              </label>
-              <select
-                id="shop-category"
-                value={category ?? ''}
-                onChange={(e) => update({ category: e.target.value || null })}
-                className={`${inputClasses} w-auto min-w-48`}
-              >
-                <option value="">All categories</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
             <label className="flex h-12 items-center gap-2.5 text-sm font-medium text-ivory-200">
               <input
                 type="checkbox"
@@ -120,6 +104,25 @@ export function ShopPage() {
               In stock only
             </label>
           </div>
+        </div>
+
+        <div className="mt-8 border-y border-ink-700 py-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-semibold tracking-[0.2em] text-gold-400 uppercase">Furniture</p>
+            <Link to="/categories#interior-design" className="text-sm text-ivory-300 hover:text-gold-300">
+              Looking for interior design? →
+            </Link>
+          </div>
+          <FilterChips
+            className="mt-4"
+            label="Filter by furniture category"
+            value={category ?? ''}
+            onChange={(value) => update({ category: value || null })}
+            options={[
+              { value: '', label: 'All furniture' },
+              ...furnitureCategories.map((slug) => ({ value: slug, label: categoryLabel(slug) })),
+            ]}
+          />
         </div>
 
         <div className="mt-10" aria-live="polite" aria-busy={isPlaceholderData || undefined}>

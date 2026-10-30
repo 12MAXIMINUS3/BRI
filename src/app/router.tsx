@@ -8,6 +8,7 @@ import { OurWorkPage } from '@/features/portfolio/pages/OurWorkPage';
 import { ProjectDetailPage } from '@/features/portfolio/pages/ProjectDetailPage';
 import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage';
 import { ShopPage } from '@/features/products/pages/ShopPage';
+import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { adminRoute } from '@/features/admin/routes';
 
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
     element: <PublicLayout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'categories', element: <CategoriesPage /> },
       { path: 'work', element: <OurWorkPage /> },
       { path: 'work/:slug', element: <ProjectDetailPage /> },
       { path: 'custom-order', element: <CustomOrderPage /> },

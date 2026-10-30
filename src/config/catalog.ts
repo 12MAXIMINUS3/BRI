@@ -27,6 +27,32 @@ export function categoryLabel(slug: string): string {
   return CATEGORIES.find((c) => c.slug === slug)?.label ?? 'Other';
 }
 
+/**
+ * Top-level departments. Each category slug above belongs to one department.
+ * Interior design types are added here (and to the database enum) once the
+ * owner confirms the list.
+ */
+export const DEPARTMENTS = [
+  {
+    slug: 'interior-design',
+    label: 'Interior Design',
+    description: 'Complete interiors planned and finished around how you use each space.',
+    categories: [] as CategorySlug[],
+  },
+  {
+    slug: 'furniture',
+    label: 'Furniture',
+    description: 'Handmade pieces, made to order or ready to take home.',
+    categories: ['tables', 'seating', 'storage', 'cabinetry', 'beds', 'outdoor', 'decor', 'other'] as CategorySlug[],
+  },
+] as const;
+
+export type DepartmentSlug = (typeof DEPARTMENTS)[number]['slug'];
+
+export function departmentOf(category: string): (typeof DEPARTMENTS)[number] | undefined {
+  return DEPARTMENTS.find((d) => (d.categories as readonly string[]).includes(category));
+}
+
 /** Value used when a customer wants the owner to recommend a material or finish. */
 export const NEED_ADVICE = 'need-advice';
 

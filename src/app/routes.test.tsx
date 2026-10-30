@@ -60,6 +60,14 @@ describe('public routes', () => {
     expect(await screen.findByRole('link', { name: 'Oak alcove shelving' })).toBeInTheDocument();
   });
 
+  it('categories page shows both departments and links furniture types to the shop', async () => {
+    renderRoute('/categories');
+    expect(await screen.findByRole('heading', { name: 'Interior Design' })).toBeInTheDocument();
+    const furniture = screen.getByRole('region', { name: 'Furniture' });
+    expect(within(furniture).getAllByRole('link', { name: 'Shop' })[0]).toHaveAttribute('href', '/shop?category=tables');
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Categories' })).toHaveAttribute('href', '/categories');
+  });
+
   it('unknown paths show the not-found page', async () => {
     renderRoute('/nope');
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
