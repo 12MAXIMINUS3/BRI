@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { VideoHeader } from '@/components/media/VideoHeader';
 import { WoodImage } from '@/components/media/WoodImage';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
@@ -24,7 +25,7 @@ const PATHS = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-ink-950">
+    <VideoHeader className="border-b-0">
       {/* Soft gold glow behind the headline. */}
       <div
         aria-hidden="true"
@@ -98,6 +99,6 @@ export function Hero() {
         </ul>
       </Container>
       <div className="gold-rule" />
-    </section>
+    </VideoHeader>
   );
 }

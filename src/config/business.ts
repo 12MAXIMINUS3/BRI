@@ -31,7 +31,7 @@ export interface BusinessConfig {
 }
 
 export const business: BusinessConfig = {
-  name: clean(env.VITE_BUSINESS_NAME) || 'Woodcraft Studio',
+  name: clean(env.VITE_BUSINESS_NAME) || 'BuiltRight Interiors',
   tagline: 'Custom furniture and woodwork, made to order.',
   email: clean(env.VITE_CONTACT_EMAIL),
   phone: clean(env.VITE_CONTACT_PHONE),
@@ -42,6 +42,36 @@ export const business: BusinessConfig = {
   locale: clean(env.VITE_LOCALE) || undefined,
   showDemoLabels: clean(env.VITE_SHOW_DEMO_LABELS) !== 'false',
 };
+
+export interface BusinessSettingsRow {
+  business_name: string | null;
+  tagline: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  whatsapp_number: string | null;
+  location: string | null;
+  service_area: string | null;
+  currency_code: string | null;
+  locale: string | null;
+}
+
+/**
+ * Applies settings saved in the database on top of the env defaults. Called
+ * once at startup before the first render; empty database values keep the
+ * env value so a half-filled settings row never blanks out the site.
+ */
+export function applyBusinessSettings(row: BusinessSettingsRow) {
+  const pick = (value: string | null | undefined, fallback: string) => clean(value ?? undefined) || fallback;
+  business.name = pick(row.business_name, business.name);
+  business.tagline = pick(row.tagline, business.tagline);
+  business.email = pick(row.contact_email, business.email);
+  business.phone = pick(row.contact_phone, business.phone);
+  business.whatsappNumber = pick(row.whatsapp_number, business.whatsappNumber).replace(/\D/g, '');
+  business.location = pick(row.location, business.location);
+  business.serviceArea = pick(row.service_area, business.serviceArea);
+  business.currencyCode = pick(row.currency_code, business.currencyCode).toUpperCase();
+  business.locale = pick(row.locale, business.locale ?? '') || undefined;
+}
 
 export function whatsappUrl(config: BusinessConfig = business): string | null {
   return config.whatsappNumber ? `https://wa.me/${config.whatsappNumber}` : null;

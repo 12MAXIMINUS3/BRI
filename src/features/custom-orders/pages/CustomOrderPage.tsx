@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { business } from '@/config/business';
 import { CATEGORIES, FINISHES, MATERIALS, MEASUREMENT_UNITS, NEED_ADVICE, isCategorySlug } from '@/config/catalog';
 import { errorMessage, isNotConnectedError } from '@/lib/errors';
+import { readSession, removeSession, writeSession } from '@/lib/storage';
+import { isSupabaseConfigured, newClientToken } from '@/lib/supabase';
 import { usePageMeta } from '@/lib/usePageMeta';
 import { WoodImage } from '@/components/media/WoodImage';
 import { Alert } from '@/components/ui/Alert';
@@ -13,6 +15,9 @@ import { Button, ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { CheckboxField, Fieldset, SelectField, TextAreaField, TextField } from '@/components/ui/form/Field';
 import { CheckIcon } from '@/components/ui/icons';
+import { VideoHeader } from '@/components/media/VideoHeader';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { signInPath } from '@/features/auth/redirect';
 import { useProject } from '@/features/portfolio/hooks';
 import { submitCustomOrderRequest, toCustomOrderPayload } from '../api';
 import { HowItWorks } from '../components/HowItWorks';
@@ -26,6 +31,24 @@ import {
 import { useFormDraft } from '../useFormDraft';
 
 const DRAFT_KEY = 'custom-order-draft';
+const TOKEN_KEY = 'custom-order-token';
+
+/** One idempotency token per request, kept across the sign-in redirect and retries. */
+function useSubmissionToken() {
+  const [token, setToken] = useState(() => {
+    const saved = readSession<string>(TOKEN_KEY);
+    if (saved) return saved;
+    const fresh = newClientToken();
+    writeSession(TOKEN_KEY, fresh);
+    return fresh;
+  });
+  const renew = () => {
+    const fresh = newClientToken();
+    writeSession(TOKEN_KEY, fresh);
+    setToken(fresh);
+  };
+  return { token, renew, clear: () => removeSession(TOKEN_KEY) };
+}
 
 export function CustomOrderPage() {
   usePageMeta({
@@ -69,10 +92,18 @@ export function CustomOrderPage() {
     if (referenceProject && !form.getValues('category')) setValue('category', referenceProject.category);
   }, [referenceProject, form, setValue]);
 
+  const { user } = useAuth();
+  const needsSignIn = isSupabaseConfigured && !user;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const submissionToken = useSubmissionToken();
+
   const submission = useMutation({
-    mutationFn: (values: CustomOrderFormValues) => submitCustomOrderRequest(toCustomOrderPayload(values), files),
+    mutationFn: (values: CustomOrderFormValues) =>
+      submitCustomOrderRequest(toCustomOrderPayload(values), files, submissionToken.token),
     onSuccess: () => {
       draft.clear();
+      submissionToken.clear();
       setFiles([]);
     },
   });
@@ -81,6 +112,11 @@ export function CustomOrderPage() {
     const problem = validateReferenceFiles(files);
     setFileError(problem);
     if (problem) return;
+    if (needsSignIn) {
+      // The draft is already saved in sessionStorage, so it is restored on return.
+      navigate(signInPath(location.pathname + location.search));
+      return;
+    }
     try {
       await submission.mutateAsync(values);
     } catch {
@@ -100,6 +136,7 @@ export function CustomOrderPage() {
     setFiles([]);
     setFileError(null);
     draft.clear();
+    submissionToken.renew();
     submission.reset();
   };
 
@@ -118,6 +155,12 @@ export function CustomOrderPage() {
           requirements and get back to you, usually with questions or a quotation. Nothing is confirmed until you accept
           a quotation.
         </p>
+        {submission.data.failedUploads.length > 0 && (
+          <Alert tone="warning" className="mt-6 text-left" title="Some images didn't upload">
+            Your request was saved, but these images could not be attached:{' '}
+            {submission.data.failedUploads.join(', ')}. You can send them when we get in touch.
+          </Alert>
+        )}
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <ButtonLink to="/account">View my requests</ButtonLink>
           <ButtonLink to="/work" variant="secondary">
@@ -130,7 +173,7 @@ export function CustomOrderPage() {
 
   return (
     <>
-      <section className="bg-ink-900">
+      <VideoHeader>
         <Container className="py-16 sm:py-20">
           <p className="eyebrow">Custom orders</p>
           <h1 className="mt-3 max-w-3xl text-5xl tracking-tight text-balance sm:text-6xl">Request a Custom Order</h1>
@@ -139,7 +182,7 @@ export function CustomOrderPage() {
             be. Not sure about materials or finishes? Choose “I need advice” and we'll recommend options.
           </p>
         </Container>
-      </section>
+      </VideoHeader>
 
       <Container className="grid gap-12 py-12 sm:py-16 lg:grid-cols-12 lg:gap-16">
         <aside className="lg:col-span-4">
@@ -163,6 +206,26 @@ export function CustomOrderPage() {
             <p id="required-note" className="mb-8 text-sm text-mist-400">
               Fields marked <span className="text-gold-400">*</span> are required.
             </p>
+
+            {needsSignIn && (
+              <Alert
+                className="mb-8"
+                title="You'll need an account to send this request"
+                action={
+                  <div className="flex flex-wrap gap-3">
+                    <ButtonLink to={signInPath(location.pathname + location.search)} size="sm">
+                      Sign In
+                    </ButtonLink>
+                    <ButtonLink to={signInPath(location.pathname + location.search, 'register')} size="sm" variant="secondary">
+                      Create Account
+                    </ButtonLink>
+                  </div>
+                }
+              >
+                An account lets you track your request and accept the quotation. You can fill in the form first: your
+                details are kept while you sign in, but images need to be attached again afterwards.
+              </Alert>
+            )}
 
             {draft.restored && (
               <Alert

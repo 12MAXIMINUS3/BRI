@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getProductBySlug, listProducts, submitOrderRequest, type ListProductsParams } from './api';
 
 export const productKeys = {
@@ -24,5 +24,13 @@ export function useProduct(slug: string | undefined) {
 }
 
 export function useOrderRequest() {
-  return useMutation({ mutationFn: submitOrderRequest });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: submitOrderRequest,
+    // Stock levels changed: refresh product data and the customer's orders.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ['account'] });
+    },
+  });
 }

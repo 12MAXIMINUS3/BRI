@@ -2,25 +2,31 @@ import { lazy } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { AboutPage } from '@/features/about/pages/AboutPage';
+import { RequireAuth } from '@/features/auth/RequireAuth';
 import { HomePage } from '@/features/home/pages/HomePage';
 import { OurWorkPage } from '@/features/portfolio/pages/OurWorkPage';
 import { ProjectDetailPage } from '@/features/portfolio/pages/ProjectDetailPage';
 import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage';
 import { ShopPage } from '@/features/products/pages/ShopPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { adminRoute } from '@/features/admin/routes';
 
-// Form pages are code-split so browsing visitors don't download the form and
-// validation libraries. PublicLayout wraps the outlet in <Suspense>.
-const CustomOrderPage = lazy(() =>
-  import('@/features/custom-orders/pages/CustomOrderPage').then((m) => ({ default: m.CustomOrderPage })),
-);
-const ContactPage = lazy(() => import('@/features/contact/pages/ContactPage').then((m) => ({ default: m.ContactPage })));
+// Form and account pages are code-split so browsing visitors don't download
+// the form libraries. PublicLayout wraps the outlet in <Suspense>.
+const named = <K extends string>(load: () => Promise<Record<K, React.ComponentType>>, name: K) =>
+  lazy(() => load().then((m) => ({ default: m[name] })));
 
-/**
- * Public routes. Phase 2 adds /sign-in, /register, /reset-password;
- * Phase 3 adds /account/*; Phase 4 adds the lazily loaded /admin/* area.
- */
+const CustomOrderPage = named(() => import('@/features/custom-orders/pages/CustomOrderPage'), 'CustomOrderPage');
+const ContactPage = named(() => import('@/features/contact/pages/ContactPage'), 'ContactPage');
+const SignInPage = named(() => import('@/features/auth/pages/SignInPage'), 'SignInPage');
+const RegisterPage = named(() => import('@/features/auth/pages/RegisterPage'), 'RegisterPage');
+const ForgotPasswordPage = named(() => import('@/features/auth/pages/ForgotPasswordPage'), 'ForgotPasswordPage');
+const ResetPasswordPage = named(() => import('@/features/auth/pages/ResetPasswordPage'), 'ResetPasswordPage');
+const AccountPage = named(() => import('@/features/account/pages/AccountPage'), 'AccountPage');
+
+/** Public site routes, plus the separately laid-out admin dashboard. */
 export const routes: RouteObject[] = [
+  adminRoute,
   {
     element: <PublicLayout />,
     children: [
@@ -32,6 +38,18 @@ export const routes: RouteObject[] = [
       { path: 'shop/:slug', element: <ProductDetailPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'contact', element: <ContactPage /> },
+      { path: 'sign-in', element: <SignInPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
+      {
+        path: 'account',
+        element: (
+          <RequireAuth>
+            <AccountPage />
+          </RequireAuth>
+        ),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

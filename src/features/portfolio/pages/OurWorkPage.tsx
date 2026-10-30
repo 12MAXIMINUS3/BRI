@@ -7,6 +7,7 @@ import { Container } from '@/components/ui/Container';
 import { FilterChips } from '@/components/ui/FilterChips';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { VideoHeader } from '@/components/media/VideoHeader';
 import { ProjectCard } from '../components/ProjectCard';
 import { useProjects } from '../hooks';
 
@@ -30,7 +31,7 @@ export function OurWorkPage() {
 
   return (
     <>
-      <section className="bg-ink-900">
+      <VideoHeader>
         <Container className="py-16 sm:py-20">
           <SectionHeading
             as="h1"
@@ -43,7 +44,7 @@ export function OurWorkPage() {
             <strong>Request Something Similar</strong> on its page and we'll quote for a version made for you.
           </Alert>
         </Container>
-      </section>
+      </VideoHeader>
 
       <Container className="py-12 sm:py-16">
         <FilterChips

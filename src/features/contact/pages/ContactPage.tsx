@@ -8,6 +8,7 @@ import { Button, ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { SelectField, TextAreaField, TextField } from '@/components/ui/form/Field';
 import { SectionHeading } from '@/components/ui/SectionHeading';
+import { VideoHeader } from '@/components/media/VideoHeader';
 import { submitContactInquiry } from '../api';
 import { ContactDetails } from '../components/ContactDetails';
 import { CONTACT_DEFAULTS, CONTACT_SUBJECTS, contactSchema, type ContactFormValues } from '../schema';
@@ -44,7 +45,7 @@ export function ContactPage() {
 
   return (
     <>
-      <section className="bg-ink-900">
+      <VideoHeader>
         <Container className="py-16 sm:py-20">
           <SectionHeading
             as="h1"
@@ -53,7 +54,7 @@ export function ContactPage() {
             description="Questions about a product, a past project, or an order in progress? Send a message. For new commissions, the custom-order form helps us quote accurately."
           />
         </Container>
-      </section>
+      </VideoHeader>
 
       <Container className="grid gap-14 py-12 sm:py-16 lg:grid-cols-12">
         <div className="lg:col-span-4">

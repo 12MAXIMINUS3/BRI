@@ -19,6 +19,29 @@ export function currencyFractionDigits(code: string): number {
   }
 }
 
+/**
+ * Parses an amount typed by the owner ("1250", "1,250.50", "1250.5") into
+ * integer minor units for the given currency. Returns null for anything that
+ * isn't a valid non-negative amount with at most the currency's decimals.
+ */
+export function parseMoneyToMinor(input: string, currencyCode: string = business.currencyCode): number | null {
+  const cleaned = input.trim().replace(/[\s,]/g, '');
+  if (!/^\d+(\.\d+)?$/.test(cleaned)) return null;
+  const code = currencyCode.trim().toUpperCase();
+  const digits = ISO_CODE.test(code) ? currencyFractionDigits(code) : 2;
+  const [whole = '0', fraction = ''] = cleaned.split('.');
+  if (fraction.length > digits) return null;
+  const minor = Number(whole) * 10 ** digits + Number(fraction.padEnd(digits, '0') || '0');
+  return Number.isSafeInteger(minor) ? minor : null;
+}
+
+/** Inverse of parseMoneyToMinor, for prefilling inputs ("1250.50"). */
+export function minorToInput(amountMinor: number, currencyCode: string = business.currencyCode): string {
+  const code = currencyCode.trim().toUpperCase();
+  const digits = ISO_CODE.test(code) ? currencyFractionDigits(code) : 2;
+  return (amountMinor / 10 ** digits).toFixed(digits);
+}
+
 export function formatMoney(
   amountMinor: number,
   currencyCode: string = business.currencyCode,

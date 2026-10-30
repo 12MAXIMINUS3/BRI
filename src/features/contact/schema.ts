@@ -19,10 +19,10 @@ export const contactSchema = z.object({
   subject: z.enum(CONTACT_SUBJECTS, { errorMap: () => ({ message: 'Choose a subject' }) }),
   message: z.string().trim().min(10, 'Please write at least 10 characters').max(4000),
   /**
-   * Honeypot. Hidden from people and assistive technology; bots that fill
-   * every field are rejected. The backend also rate-limits (Phase 2).
+   * Honeypot. Hidden from people and assistive technology. Bots that fill
+   * every field get a silent "success" from the backend, which also rate-limits.
    */
-  website: z.string().max(0),
+  website: z.string().max(500),
 });
 
 export type ContactFormValues = z.infer<typeof contactSchema>;

@@ -9,6 +9,7 @@ import { SearchIcon } from '@/components/ui/icons';
 import { Pagination } from '@/components/ui/Pagination';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { VideoHeader } from '@/components/media/VideoHeader';
 import { ProductCard } from '../components/ProductCard';
 import { useProducts } from '../hooks';
 
@@ -57,7 +58,7 @@ export function ShopPage() {
 
   return (
     <>
-      <section className="bg-ink-900">
+      <VideoHeader>
         <Container className="py-16 sm:py-20">
           <SectionHeading
             as="h1"
@@ -66,7 +67,7 @@ export function ShopPage() {
             description="Ready-made pieces with set prices. Request an item and we'll confirm availability and payment arrangements with you before your order is final."
           />
         </Container>
-      </section>
+      </VideoHeader>
 
       <Container className="py-12 sm:py-16">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

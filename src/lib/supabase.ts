@@ -1,0 +1,42 @@
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+
+/**
+ * Browser Supabase client. Uses the public anon key only; every table is
+ * protected by Row Level Security. The service-role key must never be used
+ * in frontend code.
+ *
+ * When the env vars are missing (e.g. in unit tests) the app falls back to
+ * bundled demo data and form submissions report "not connected".
+ */
+const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+export const supabase: SupabaseClient | null =
+  url && anonKey
+    ? createClient(url, anonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      })
+    : null;
+
+export const isSupabaseConfigured = supabase !== null;
+
+export function requireSupabase(): SupabaseClient {
+  if (!supabase) throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  return supabase;
+}
+
+/** Public URL for an image in the `catalog-images` bucket. */
+export function catalogImageUrl(path: string | null): string | null {
+  if (!path || !supabase) return null;
+  return supabase.storage.from('catalog-images').getPublicUrl(path).data.publicUrl;
+}
+
+/** Turns a PostgREST/Postgres error into a plain Error with a readable message. */
+export function toError(error: { message: string } | null | undefined, fallback = 'Something went wrong.'): Error {
+  return new Error(error?.message || fallback);
+}
+
+/** Generates an idempotency key for one submission attempt. */
+export function newClientToken(): string {
+  return crypto.randomUUID();
+}

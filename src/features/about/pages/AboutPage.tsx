@@ -4,6 +4,7 @@ import { WoodImage } from '@/components/media/WoodImage';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { PlaceholderCopy } from '@/components/ui/DemoLabel';
+import { VideoHeader } from '@/components/media/VideoHeader';
 
 /**
  * All copy on this page is placeholder text for the owner to replace.
@@ -32,7 +33,7 @@ export function AboutPage() {
 
   return (
     <>
-      <section className="bg-ink-900">
+      <VideoHeader>
         <Container className="grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <p className="eyebrow">About</p>
@@ -53,7 +54,7 @@ export function AboutPage() {
             />
           </div>
         </Container>
-      </section>
+      </VideoHeader>
 
       <Container className="grid gap-12 py-16 sm:py-24 lg:grid-cols-12">
         <div className="lg:col-span-5">

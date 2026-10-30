@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { cn } from '@/lib/cn';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { ButtonLink } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { Dialog } from '@/components/ui/Dialog';
@@ -8,17 +10,19 @@ import { MenuIcon } from '@/components/ui/icons';
 import { Logo } from './Logo';
 import { PRIMARY_NAV } from './navigation';
 
-const linkClass = ({ isActive }: { isActive: boolean }) =>
+/** Main navigation: bordered tabs with a 10px radius. */
+const mainNavClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'relative rounded-sm px-1 py-2 text-[0.72rem] font-semibold tracking-[0.2em] uppercase transition-colors',
-    isActive ? 'text-gold-300' : 'text-ivory-300 hover:text-gold-300',
-    'after:absolute after:inset-x-1 after:-bottom-0.5 after:h-px after:origin-left after:bg-gold-500 after:transition-transform after:duration-300',
-    isActive ? 'after:scale-x-100' : 'after:scale-x-0',
+    'rounded-[10px] border px-3 py-2 text-[0.72rem] font-semibold tracking-[0.16em] uppercase transition-colors',
+    isActive
+      ? 'border-gold-500 bg-gold-500/10 text-gold-300'
+      : 'border-gold-500/20 text-ivory-300 hover:border-gold-500/60 hover:text-gold-300',
   );
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
+  const { user, isAdmin } = useAuth();
 
   // Close the mobile menu after navigating.
   useEffect(() => setMenuOpen(false), [pathname]);
@@ -28,16 +32,26 @@ export function SiteHeader() {
       <Container className="flex h-20 items-center justify-between gap-6">
         <Logo />
 
-        <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex lg:translate-x-10">
           {PRIMARY_NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} className={linkClass}>
+            <NavLink key={item.to} to={item.to} className={mainNavClass}>
               {item.label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <ButtonLink to="/custom-order" size="sm" className="hidden sm:inline-flex">
+        <div className="flex items-center gap-3">
+          {isAdmin && (
+            <NavLink to="/admin" className={(s) => cn(mainNavClass(s), 'hidden md:inline-block')}>
+              Dashboard
+            </NavLink>
+          )}
+          {isSupabaseConfigured && (
+            <NavLink to={user ? '/account' : '/sign-in'} className={(s) => cn(mainNavClass(s), 'hidden md:inline-block')}>
+              {user ? 'My Account' : 'Sign In'}
+            </NavLink>
+          )}
+          <ButtonLink to="/custom-order" size="sm" className="hidden rounded-[10px]! sm:inline-flex">
             Request a Custom Order
           </ButtonLink>
           <button
@@ -56,7 +70,12 @@ export function SiteHeader() {
       <Dialog open={menuOpen} onClose={() => setMenuOpen(false)} title="Menu" variant="drawer">
         <nav aria-label="Mobile">
           <ul className="flex flex-col">
-            {[{ to: '/', label: 'Home' }, ...PRIMARY_NAV].map((item) => (
+            {[
+              { to: '/', label: 'Home' },
+              ...PRIMARY_NAV,
+              ...(isAdmin ? [{ to: '/admin', label: 'Dashboard' }] : []),
+              ...(isSupabaseConfigured ? [{ to: user ? '/account' : '/sign-in', label: user ? 'My Account' : 'Sign In' }] : []),
+            ].map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
