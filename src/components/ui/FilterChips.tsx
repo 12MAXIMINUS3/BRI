@@ -26,7 +26,7 @@ export function FilterChips({ label, options, value, onChange, className }: Filt
             aria-pressed={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              'rounded-sm border px-4 py-2 text-xs font-semibold tracking-[0.12em] uppercase transition-colors',
+              'rounded-sm border px-4 py-2 pointer-coarse:py-3 text-xs font-semibold tracking-[0.12em] uppercase transition-colors',
               active
                 ? 'border-gold-500 bg-gold-500 text-ink-950'
                 : 'border-ink-600 bg-transparent text-ivory-300 hover:border-gold-500/70 hover:text-gold-300',

@@ -31,7 +31,7 @@
   --color-ivory-200: #ddd6c8;
   --color-ivory-300: #c4bcad;
   --color-mist-400: #a19a8d;
-  --color-mist-500: #857f74;
+  --color-mist-500: #8c867b;
 
   --radius-xl: 0.375rem;
   --radius-2xl: 0.375rem;
@@ -125,4 +125,63 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Phones and tablets (iOS and Android)
+   These rules are deliberately outside any @layer so they win over utilities.
+   --------------------------------------------------------------------------- */
+
+/* iOS Safari zooms the page when a form field under 16px is focused. */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+html {
+  /* Gold-tinted tap flash instead of the default grey/blue box. */
+  -webkit-tap-highlight-color: rgb(201 162 74 / 0.2);
+}
+
+a,
+button,
+input,
+select,
+textarea,
+label,
+summary {
+  /* No double-tap-to-zoom delay on controls. */
+  touch-action: manipulation;
+}
+
+/* Keep content clear of the notch / camera cut-out in landscape and the
+   home indicator at the bottom (needs viewport-fit=cover in index.html). */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+footer {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+dialog {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* iOS Low Power Mode blocks autoplay and would show a play button over the
+   decorative header video; hide it so the still frame looks intentional. */
+video::-webkit-media-controls,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+/* When saved to the home screen, the page extends under the status bar. */
+.site-header {
+  padding-top: env(safe-area-inset-top);
 }

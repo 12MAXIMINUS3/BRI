@@ -53,7 +53,7 @@ export function Dialog({ open, onClose, title, children, variant = 'center', cla
           <button
             type="button"
             onClick={onClose}
-            className="-mr-2 grid size-10 place-items-center rounded-full text-gold-400 hover:bg-ink-800"
+            className="-mr-2 grid size-10 pointer-coarse:size-11 place-items-center rounded-full text-gold-400 hover:bg-ink-800"
           >
             <CloseIcon className="size-5" />
             <span className="sr-only">Close</span>

@@ -184,3 +184,48 @@ To use your own:
 
 Products and portfolio projects in the database get their photos from the admin
 dashboard (**Admin → Products / Portfolio → Upload Photos**), not this file.
+
+## Phones and tablets
+
+The site is built for iPhone/iPad (Safari) and Android (Chrome) as well as desktop:
+
+- Layouts adapt from 360px phones up; nothing scrolls sideways (`npm run test:mobile`
+  loads every page at iPhone 14, small Android, Pixel 7, and iPad mini sizes; needs
+  `npm run dev` running and Google Chrome installed).
+- Form fields use 16px text on touch screens, so iOS Safari doesn't zoom in on tap.
+- Buttons, filters, and page numbers are at least 44px tall on touch screens.
+- Content stays clear of the iPhone notch, Android camera cut-outs, and the home bar.
+- The header video is muted and plays inline, as iOS requires for autoplay; in Low
+  Power Mode it shows a still frame instead of a play button.
+- "Add to Home Screen" gives the BuiltRight icon and a full-screen app on both
+  platforms (`public/manifest.webmanifest`, `public/apple-touch-icon.png`).
+
+## Going live
+
+1. **Database:** run `supabase/setup.sql` in the Supabase SQL Editor (once).
+2. **Host:** connect the GitHub repo to [Vercel](https://vercel.com) or
+   [Netlify](https://netlify.com). Build command `npm run build`, output folder `dist`.
+   Both are pre-configured (`vercel.json`, `public/_redirects`, `public/_headers`):
+   every route serves the app, and security headers (Content-Security-Policy, HSTS,
+   no camera/microphone/location access) are set.
+3. **Environment variables** on the host: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+   and `VITE_BUSINESS_NAME`. Never add the service-role key.
+4. **Supabase → Authentication → URL Configuration:** set **Site URL** to your live
+   address (e.g. `https://builtright.example`) and add `https://builtright.example/**`
+   to Redirect URLs, so confirmation and password-reset emails link to the live site.
+5. **Supabase → Authentication → Emails:** set up custom SMTP before launch. The
+   built-in sender is rate-limited and meant for testing.
+6. **Make yourself admin** (after registering on the live site):
+   `select public.promote_to_admin('you@example.com');`
+7. **Admin → Settings:** set the currency, contact details, and payment instructions.
+8. Replace the sample photos (see *Replacing photos*), remove the demo items, then set
+   `VITE_SHOW_DEMO_LABELS=false` and redeploy.
+
+### Checks
+
+| Command | What it checks |
+| --- | --- |
+| `npm test` | Unit and page tests, accessibility (axe-core WCAG 2.1 AA) on every public page, theme colour contrast, photo files |
+| `npm run test:db` | Database security rules and server functions against real Postgres (PGlite) |
+| `npm run test:mobile` | Phone and tablet layouts in Chrome (dev server must be running) |
+| `npm run build` | Type-check and production build |

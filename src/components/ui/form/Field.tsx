@@ -2,7 +2,7 @@ import { useId, type ComponentProps, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 export const inputClasses =
-  'block w-full rounded-md border border-ink-600 bg-ink-900 px-4 py-3 text-[0.95rem] text-ivory-50 placeholder:text-mist-500 transition-colors hover:border-gold-500/60 focus:border-gold-500 focus-visible:outline-2 focus-visible:outline-offset-0 aria-[invalid=true]:border-[#e07a62] disabled:bg-ink-900';
+  'block w-full rounded-md border border-ink-600 bg-ink-900 px-4 py-3 text-base text-ivory-50 placeholder:text-mist-500 transition-colors hover:border-gold-500/60 focus:border-gold-500 focus-visible:outline-2 focus-visible:outline-offset-0 aria-[invalid=true]:border-[#e07a62] disabled:bg-ink-900';
 
 interface FieldShellProps {
   id: string;

@@ -28,7 +28,7 @@ export function SiteHeader() {
   useEffect(() => setMenuOpen(false), [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gold-500/20 bg-ink-950/85 backdrop-blur-md">
+    <header className="site-header sticky top-0 z-40 border-b border-gold-500/20 bg-ink-950/85 backdrop-blur-md">
       <Container className="flex h-20 items-center justify-between gap-6">
         <Logo />
 
@@ -51,7 +51,7 @@ export function SiteHeader() {
               {user ? 'My Account' : 'Sign In'}
             </NavLink>
           )}
-          <ButtonLink to="/custom-order" size="sm" className="hidden rounded-[10px]! sm:inline-flex">
+          <ButtonLink to="/custom-order" size="sm" className="rounded-[10px]! max-sm:hidden!">
             Request a Custom Order
           </ButtonLink>
           <button

@@ -12,7 +12,7 @@ export function Pagination({ page, pageCount, onPageChange, className }: Paginat
   if (pageCount <= 1) return null;
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
   const arrow =
-    'grid size-10 place-items-center rounded-full text-gold-400 hover:bg-ink-800 disabled:pointer-events-none disabled:opacity-40';
+    'grid size-10 pointer-coarse:size-11 place-items-center rounded-full text-gold-400 hover:bg-ink-800 disabled:pointer-events-none disabled:opacity-40';
 
   return (
     <nav aria-label="Pagination" className={cn('flex items-center justify-center gap-1', className)}>
@@ -27,7 +27,7 @@ export function Pagination({ page, pageCount, onPageChange, className }: Paginat
           onClick={() => onPageChange(p)}
           aria-current={p === page ? 'page' : undefined}
           className={cn(
-            'grid size-10 place-items-center rounded-full text-sm font-medium',
+            'grid size-10 pointer-coarse:size-11 place-items-center rounded-full text-sm font-medium',
             p === page ? 'bg-gold-500 text-ink-950' : 'text-gold-400 hover:bg-ink-800',
           )}
         >
