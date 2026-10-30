@@ -5,6 +5,8 @@ coverage
 .env
 .env.*
 !.env.example
+# Public production settings only (URL + anon key). Never put secrets here.
+!.env.production
 .DS_Store
 *.log
 supabase/.temp
